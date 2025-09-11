@@ -28,7 +28,7 @@ public class Customer implements Serializable {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(nullable = false)
+    @Column(name = "keycloak_user_id", nullable = false)
     private String keycloakUserId;
 
     @Column(nullable = false)
@@ -40,10 +40,7 @@ public class Customer implements Serializable {
     @Column(nullable = false, length = 8)
     private String cep;
 
-    @Column(length = 15)
-    private String phone;
-
-    @Column(nullable = false, name = "birth_date")
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
     @CreatedDate
