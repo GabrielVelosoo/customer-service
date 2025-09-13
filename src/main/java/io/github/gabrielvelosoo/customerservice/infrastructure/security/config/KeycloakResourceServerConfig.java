@@ -20,7 +20,7 @@ public class KeycloakResourceServerConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(HttpMethod.POST, "/api/v1/clientes/**").permitAll();
+                    auth.requestMatchers(HttpMethod.POST, "/api/v1/customers/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(resourceServer ->

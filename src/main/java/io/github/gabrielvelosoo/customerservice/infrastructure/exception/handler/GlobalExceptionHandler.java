@@ -1,5 +1,7 @@
 package io.github.gabrielvelosoo.customerservice.infrastructure.exception.handler;
 
+import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;
+import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ErrorResponse;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.FieldError;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,19 @@ public class GlobalExceptionHandler {
                 .map(error -> new FieldError(error.getField(), error.getDefaultMessage()))
                 .toList();
         ValidationErrorResponse errorResponse = new ValidationErrorResponse(status, timestamp, errors);
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(DuplicateRecordException.class)
+    public ResponseEntity<ErrorResponse> handleRegistroDuplicadoException(DuplicateRecordException e) {
+        int status = HttpStatus.CONFLICT.value();
+        String message = e.getMessage();
+        LocalDateTime timestamp = LocalDateTime.now();
+        ErrorResponse errorResponse = new ErrorResponse(
+                status,
+                message,
+                timestamp
+        );
         return ResponseEntity.status(status).body(errorResponse);
     }
 }

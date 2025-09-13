@@ -7,7 +7,7 @@ spring:
     show-sql: true
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -31,5 +31,7 @@ keycloak:
   auth-server-url: http://localhost:8080
   realm: ecommerce
   client-id: customer-service
-  admin-username: ${KEYCLOAK_ADMIN_USER}
-  admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
+  client-secret: ${CLIENT_SECRET}
+
+server:
+  port: 8081

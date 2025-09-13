@@ -26,7 +26,7 @@ public class KeycloakUserService implements IdentityProvider {
     public String createUser(String email, String password, String name, String lastName) {
         try {
             List<UserRepresentation> existing = keycloak.realm(realm).users().search(email, true);
-            if(existing.isEmpty()) {
+            if(!existing.isEmpty()) {
                 throw new RuntimeException("User already exists in Keycloak: " + email);
             }
             UserRepresentation user = new UserRepresentation();
