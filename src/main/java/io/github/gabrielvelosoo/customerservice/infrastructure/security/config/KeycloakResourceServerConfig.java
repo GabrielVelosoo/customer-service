@@ -2,7 +2,6 @@ package io.github.gabrielvelosoo.customerservice.infrastructure.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,7 +19,7 @@ public class KeycloakResourceServerConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(HttpMethod.POST, "/api/v1/customers/**").permitAll();
+                    auth.requestMatchers("/api/v1/customers/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(resourceServer ->

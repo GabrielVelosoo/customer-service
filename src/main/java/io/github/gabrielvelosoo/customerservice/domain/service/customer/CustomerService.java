@@ -5,4 +5,6 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 public interface CustomerService {
 
     Customer create(Customer customer);
+    Customer findById(Long id);
+    Customer edit(Customer customer);
 }

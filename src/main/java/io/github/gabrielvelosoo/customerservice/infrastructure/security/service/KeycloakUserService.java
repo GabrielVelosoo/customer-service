@@ -5,6 +5,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -59,6 +60,21 @@ public class KeycloakUserService implements IdentityProvider {
             keycloak.realm(realm).users().get(userId).roles().realmLevel().add(List.of(userRole));
         } catch(Exception e) {
             throw new RuntimeException("Failed to assign role in Keycloak: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void editUser(String userId, String name, String lastName) {
+        try {
+            UserResource userResource = keycloak.realm(realm)
+                    .users()
+                    .get(userId);
+            UserRepresentation user = userResource.toRepresentation();
+            user.setFirstName(name);
+            user.setLastName(lastName);
+            userResource.update(user);
+        } catch(Exception e) {
+            throw new RuntimeException("Failed to update user in Keycloak: " + e.getMessage(), e);
         }
     }
 }

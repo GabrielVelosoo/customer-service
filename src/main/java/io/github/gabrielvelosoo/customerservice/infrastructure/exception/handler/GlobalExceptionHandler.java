@@ -1,6 +1,7 @@
 package io.github.gabrielvelosoo.customerservice.infrastructure.exception.handler;
 
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;
+import io.github.gabrielvelosoo.customerservice.infrastructure.exception.RecordNotFoundException;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ErrorResponse;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.FieldError;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ValidationErrorResponse;
@@ -29,8 +30,21 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateRecordException.class)
-    public ResponseEntity<ErrorResponse> handleRegistroDuplicadoException(DuplicateRecordException e) {
+    public ResponseEntity<ErrorResponse> handleDuplicateRecordException(DuplicateRecordException e) {
         int status = HttpStatus.CONFLICT.value();
+        String message = e.getMessage();
+        LocalDateTime timestamp = LocalDateTime.now();
+        ErrorResponse errorResponse = new ErrorResponse(
+                status,
+                message,
+                timestamp
+        );
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(RecordNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRecordNotFoundException(RecordNotFoundException e) {
+        int status = HttpStatus.NOT_FOUND.value();
         String message = e.getMessage();
         LocalDateTime timestamp = LocalDateTime.now();
         ErrorResponse errorResponse = new ErrorResponse(
