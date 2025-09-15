@@ -1,12 +1,11 @@
 package io.github.gabrielvelosoo.customerservice.application.validator.custom;
 
+import io.github.gabrielvelosoo.customerservice.application.dto.CustomerUpdateDTO;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -14,32 +13,30 @@ public class CustomerValidator {
 
     private final CustomerRepository customerRepository;
 
-    public void validate(Customer customer) {
-        if(customerHasRegisteredEmail(customer)) {
-            throw new DuplicateRecordException("Email already registered");
+    public void validateOnCreate(Customer customer) {
+        if(customerHasRegisteredEmail(customer.getEmail())) {
+            throw new DuplicateRecordException("There is already an account registered with this email");
         }
-        if(customerHasRegisteredCpf(customer)) {
-            throw new DuplicateRecordException("CPF already registered");
+        if(customerHasRegisteredCpf(customer.getCpf())) {
+            throw new DuplicateRecordException("There is already an account registered with this CPF");
         }
     }
 
-    private boolean customerHasRegisteredEmail(Customer customer) {
-        Optional<Customer> foundCustomer = customerRepository.findByEmail(customer.getEmail());
-        if(customer.getId() == null) {
-            return foundCustomer.isPresent();
-        }
-        return foundCustomer
-                .map(c -> !c.getId().equals(customer.getId()))
-                .orElse(false);
+    private boolean customerHasRegisteredEmail(String email) {
+        return customerRepository.findByEmail(email).isPresent();
     }
 
-    private boolean customerHasRegisteredCpf(Customer customer) {
-        Optional<Customer> foundCustomer = customerRepository.findByCpf(customer.getCpf());
-        if(customer.getId() == null) {
-            return foundCustomer.isPresent();
+    private boolean customerHasRegisteredCpf(String cpf) {
+        return customerRepository.findByCpf(cpf).isPresent();
+    }
+
+    public void validateOnUpdate(Long customerId, CustomerUpdateDTO customerUpdateDTO) {
+        if (customerHasRegisteredCpfOnUpdate(customerId, customerUpdateDTO.cpf())) {
+            throw new DuplicateRecordException("There is already an account registered with this CPF");
         }
-        return foundCustomer
-                .map(c -> !c.getId().equals(customer.getId()))
-                .orElse(false);
+    }
+
+    private boolean customerHasRegisteredCpfOnUpdate(Long customerId, String cpf) {
+        return customerRepository.findByCpfAndNotId(cpf, customerId).isPresent();
     }
 }

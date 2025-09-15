@@ -25,7 +25,7 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     @Transactional
     public CustomerResponseDTO create(CustomerRequestDTO customerRequestDTO) {
         Customer customer = customerMapper.toEntity(customerRequestDTO);
-        customerValidator.validate(customer);
+        customerValidator.validateOnCreate(customer);
         String keycloakUserId = identityProvider.createUser(
                 customerRequestDTO.email(),
                 customerRequestDTO.password(),
@@ -40,14 +40,14 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     @Override
     @Transactional
     public CustomerResponseDTO edit(Long id, CustomerUpdateDTO customerUpdateDTO) {
+        customerValidator.validateOnUpdate(id, customerUpdateDTO);
         Customer customer = customerService.findById(id);
-        customerValidator.validate(customer);
+        customerMapper.edit(customer, customerUpdateDTO);
         identityProvider.editUser(
                 customer.getKeycloakUserId(),
                 customerUpdateDTO.name(),
                 customerUpdateDTO.lastName()
         );
-        customerMapper.edit(customer, customerUpdateDTO);
         Customer editedCustomer = customerService.edit(customer);
         return customerMapper.toDTO(editedCustomer);
     }
