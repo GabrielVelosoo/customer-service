@@ -7,4 +7,5 @@ public interface CustomerService {
     Customer create(Customer customer);
     Customer findById(Long id);
     Customer edit(Customer customer);
+    void delete(Customer customer);
 }

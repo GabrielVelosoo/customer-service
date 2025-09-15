@@ -22,6 +22,7 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     private final CustomerValidator customerValidator;
 
     @Override
+    @Transactional
     public CustomerResponseDTO create(CustomerRequestDTO customerRequestDTO) {
         Customer customer = customerMapper.toEntity(customerRequestDTO);
         customerValidator.validate(customer);
@@ -49,5 +50,13 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
         customerMapper.edit(customer, customerUpdateDTO);
         Customer editedCustomer = customerService.edit(customer);
         return customerMapper.toDTO(editedCustomer);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        Customer customer = customerService.findById(id);
+        identityProvider.deleteUser(customer.getKeycloakUserId());
+        customerService.delete(customer);
     }
 }

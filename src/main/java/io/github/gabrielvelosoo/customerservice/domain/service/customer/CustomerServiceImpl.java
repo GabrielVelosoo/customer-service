@@ -20,11 +20,16 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer findById(Long id) {
         return customerRepository.findById(id)
-                .orElseThrow( () -> new RecordNotFoundException("Record not found"));
+                .orElseThrow( () -> new RecordNotFoundException("Record not found") );
     }
 
     @Override
     public Customer edit(Customer customer) {
         return customerRepository.save(customer);
+    }
+
+    @Override
+    public void delete(Customer customer) {
+        customerRepository.delete(customer);
     }
 }

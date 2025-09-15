@@ -18,10 +18,23 @@ public class CustomerValidator {
         if(customerHasRegisteredEmail(customer)) {
             throw new DuplicateRecordException("Email already registered");
         }
+        if(customerHasRegisteredCpf(customer)) {
+            throw new DuplicateRecordException("CPF already registered");
+        }
     }
 
     private boolean customerHasRegisteredEmail(Customer customer) {
         Optional<Customer> foundCustomer = customerRepository.findByEmail(customer.getEmail());
+        if(customer.getId() == null) {
+            return foundCustomer.isPresent();
+        }
+        return foundCustomer
+                .map(c -> !c.getId().equals(customer.getId()))
+                .orElse(false);
+    }
+
+    private boolean customerHasRegisteredCpf(Customer customer) {
+        Optional<Customer> foundCustomer = customerRepository.findByCpf(customer.getCpf());
         if(customer.getId() == null) {
             return foundCustomer.isPresent();
         }

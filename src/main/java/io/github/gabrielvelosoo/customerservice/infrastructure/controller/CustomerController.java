@@ -33,4 +33,10 @@ public class CustomerController implements GenericController {
         CustomerResponseDTO customerResponseDTO = customerUseCase.edit(id, customerUpdateDTO);
         return ResponseEntity.ok(customerResponseDTO);
     }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id) {
+        customerUseCase.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
