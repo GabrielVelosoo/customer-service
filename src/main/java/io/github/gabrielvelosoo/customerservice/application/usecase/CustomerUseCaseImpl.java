@@ -1,13 +1,16 @@
 package io.github.gabrielvelosoo.customerservice.application.usecase;
 
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerRequestDTO;
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerResponseDTO;
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerUpdateDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerUpdateDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerCreatedEvent;
+import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerDeletedEvent;
+import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerUpdatedEvent;
 import io.github.gabrielvelosoo.customerservice.application.mapper.CustomerMapper;
 import io.github.gabrielvelosoo.customerservice.application.validator.custom.CustomerValidator;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
-import io.github.gabrielvelosoo.customerservice.domain.service.auth.IdentityProvider;
+import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.producer.CustomerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,23 +20,27 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomerUseCaseImpl implements CustomerUseCase {
 
     private final CustomerService customerService;
-    private final IdentityProvider identityProvider;
     private final CustomerMapper customerMapper;
     private final CustomerValidator customerValidator;
+    private final CustomerProducer customerProducer;
 
     @Override
     @Transactional
     public CustomerResponseDTO create(CustomerRequestDTO customerRequestDTO) {
         Customer customer = customerMapper.toEntity(customerRequestDTO);
         customerValidator.validateOnCreate(customer);
-        String keycloakUserId = identityProvider.createUser(
-                customerRequestDTO.email(),
-                customerRequestDTO.password(),
-                customerRequestDTO.name(),
-                customerRequestDTO.lastName()
-        );
-        customer.setKeycloakUserId(keycloakUserId);
         Customer savedCustomer = customerService.create(customer);
+
+        customerProducer.publishCustomerCreated(
+                new CustomerCreatedEvent(
+                        savedCustomer.getId(),
+                        savedCustomer.getName(),
+                        savedCustomer.getLastName(),
+                        customerRequestDTO.email(),
+                        customerRequestDTO.password()
+                )
+        );
+
         return customerMapper.toDTO(savedCustomer);
     }
 
@@ -43,12 +50,17 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
         customerValidator.validateOnUpdate(id, customerUpdateDTO);
         Customer customer = customerService.findById(id);
         customerMapper.edit(customer, customerUpdateDTO);
-        identityProvider.editUser(
-                customer.getKeycloakUserId(),
-                customerUpdateDTO.name(),
-                customerUpdateDTO.lastName()
-        );
         Customer editedCustomer = customerService.edit(customer);
+
+        customerProducer.publishCustomerUpdated(
+                new CustomerUpdatedEvent(
+                        editedCustomer.getId(),
+                        editedCustomer.getKeycloakUserId(),
+                        editedCustomer.getName(),
+                        editedCustomer.getLastName()
+                )
+        );
+
         return customerMapper.toDTO(editedCustomer);
     }
 
@@ -56,7 +68,13 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     @Transactional
     public void delete(Long id) {
         Customer customer = customerService.findById(id);
-        identityProvider.deleteUser(customer.getKeycloakUserId());
         customerService.delete(customer);
+
+        customerProducer.publishCustomerDeleted(
+                new CustomerDeletedEvent(
+                        customer.getId(),
+                        customer.getKeycloakUserId()
+                )
+        );
     }
 }

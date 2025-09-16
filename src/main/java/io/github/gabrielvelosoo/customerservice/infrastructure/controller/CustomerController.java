@@ -1,8 +1,8 @@
 package io.github.gabrielvelosoo.customerservice.infrastructure.controller;
 
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerRequestDTO;
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerResponseDTO;
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerUpdateDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerUpdateDTO;
 import io.github.gabrielvelosoo.customerservice.application.usecase.CustomerUseCase;
 import io.github.gabrielvelosoo.customerservice.application.validator.group.ValidationOrder;
 import lombok.RequiredArgsConstructor;

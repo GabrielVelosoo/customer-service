@@ -28,7 +28,7 @@ public class Customer implements Serializable {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "keycloak_user_id", nullable = false)
+    @Column(name = "keycloak_user_id")
     private String keycloakUserId;
 
     @Column(nullable = false, unique = true, length = 100)

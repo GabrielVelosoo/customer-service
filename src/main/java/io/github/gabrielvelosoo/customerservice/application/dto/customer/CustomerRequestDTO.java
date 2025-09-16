@@ -1,4 +1,4 @@
-package io.github.gabrielvelosoo.customerservice.application.dto;
+package io.github.gabrielvelosoo.customerservice.application.dto.customer;
 
 import io.github.gabrielvelosoo.customerservice.application.validator.group.ValidateNotBlank;
 import io.github.gabrielvelosoo.customerservice.application.validator.group.ValidateOthers;

@@ -26,6 +26,11 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 keycloak:
   auth-server-url: http://localhost:8080

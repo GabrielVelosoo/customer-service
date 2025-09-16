@@ -1,6 +1,6 @@
 package io.github.gabrielvelosoo.customerservice.application.validator.custom;
 
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerUpdateDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerUpdateDTO;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;

@@ -1,8 +1,8 @@
 package io.github.gabrielvelosoo.customerservice.application.usecase;
 
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerRequestDTO;
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerResponseDTO;
-import io.github.gabrielvelosoo.customerservice.application.dto.CustomerUpdateDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
+import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerUpdateDTO;
 
 public interface CustomerUseCase {
 

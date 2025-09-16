@@ -1,10 +1,13 @@
 package io.github.gabrielvelosoo.customerservice.infrastructure.exception.handler;
 
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;
+import io.github.gabrielvelosoo.customerservice.infrastructure.exception.KeycloakException;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.RecordNotFoundException;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ErrorResponse;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.FieldError;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ValidationErrorResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +19,8 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
@@ -50,6 +55,19 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 status,
                 message,
+                timestamp
+        );
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(KeycloakException.class)
+    public ResponseEntity<ErrorResponse> handleKeycloakException(KeycloakException e) {
+        logger.error("Keycloak operation failed", e);
+        int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        LocalDateTime timestamp = LocalDateTime.now();
+        ErrorResponse errorResponse = new ErrorResponse(
+                status,
+                "An error occurred while processing Keycloak operation",
                 timestamp
         );
         return ResponseEntity.status(status).body(errorResponse);
