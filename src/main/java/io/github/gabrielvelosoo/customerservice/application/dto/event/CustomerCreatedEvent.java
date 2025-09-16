@@ -4,7 +4,6 @@ public record CustomerCreatedEvent(
         Long customerId,
         String name,
         String lastName,
-        String email,
-        String password
+        String email
     ) {
 }

@@ -2,6 +2,7 @@ package io.github.gabrielvelosoo.customerservice.infrastructure.security.service
 
 import io.github.gabrielvelosoo.customerservice.domain.service.auth.IdentityProvider;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.KeycloakException;
+import io.github.gabrielvelosoo.customerservice.infrastructure.security.util.PasswordGenerator;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +30,7 @@ public class KeycloakUserService implements IdentityProvider {
     private String realm;
 
     @Override
-    public String createUser(String email, String password, String name, String lastName) {
+    public String createUser(String email, String name, String lastName) {
         logger.info("Creating Keycloak user with email='{}'", email);
         try {
             if(userExists(email)) {
@@ -46,17 +47,18 @@ public class KeycloakUserService implements IdentityProvider {
 
             Response response = keycloak.realm(realm).users().create(user);
             if(response.getStatus() != 201) {
-                logger.error("Failed to create Keycloak user '{}' (status={})", email, response.getStatus());
+                logger.error("Failed to create Keycloak user '{}' (status='{}')", email, response.getStatus());
                 throw new RuntimeException("Error creating user in Keycloak: " + response.getStatus());
             }
 
             String userId = CreatedResponseUtil.getCreatedId(response);
             logger.info("Keycloak user '{}' created successfully with id='{}'", email, userId);
 
+            String tempPassword = PasswordGenerator.generate(10);
             CredentialRepresentation credential = new CredentialRepresentation();
-            credential.setTemporary(false);
+            credential.setTemporary(true);
             credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(password);
+            credential.setValue(tempPassword);
             keycloak.realm(realm).users().get(userId).resetPassword(credential);
             logger.info("Password set for user '{}'", userId);
 
@@ -72,7 +74,7 @@ public class KeycloakUserService implements IdentityProvider {
         logger.debug("Checking if Keycloak user '{}' exists", email);
         List<UserRepresentation> existing = keycloak.realm(realm).users().search(email, true);
         boolean exists = !existing.isEmpty();
-        logger.debug("User '{}' exists? {}", email, exists);
+        logger.debug("User '{}' exists? '{}'", email, exists);
         return exists;
     }
 

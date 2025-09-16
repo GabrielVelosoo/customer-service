@@ -13,7 +13,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
 
     @Override
-    public Customer create(Customer customer) {
+    public Customer save(Customer customer) {
         return customerRepository.save(customer);
     }
 

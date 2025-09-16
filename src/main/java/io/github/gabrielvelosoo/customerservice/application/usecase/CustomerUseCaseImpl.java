@@ -29,15 +29,14 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     public CustomerResponseDTO create(CustomerRequestDTO customerRequestDTO) {
         Customer customer = customerMapper.toEntity(customerRequestDTO);
         customerValidator.validateOnCreate(customer);
-        Customer savedCustomer = customerService.create(customer);
+        Customer savedCustomer = customerService.save(customer);
 
         customerProducer.publishCustomerCreated(
                 new CustomerCreatedEvent(
                         savedCustomer.getId(),
                         savedCustomer.getName(),
                         savedCustomer.getLastName(),
-                        customerRequestDTO.email(),
-                        customerRequestDTO.password()
+                        customerRequestDTO.email()
                 )
         );
 
@@ -55,7 +54,6 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
         customerProducer.publishCustomerUpdated(
                 new CustomerUpdatedEvent(
                         editedCustomer.getId(),
-                        editedCustomer.getKeycloakUserId(),
                         editedCustomer.getName(),
                         editedCustomer.getLastName()
                 )
@@ -72,8 +70,7 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
 
         customerProducer.publishCustomerDeleted(
                 new CustomerDeletedEvent(
-                        customer.getId(),
-                        customer.getKeycloakUserId()
+                        customer.getId()
                 )
         );
     }
