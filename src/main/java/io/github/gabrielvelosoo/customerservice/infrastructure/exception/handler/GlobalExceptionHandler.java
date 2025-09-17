@@ -24,6 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        logger.error(e.getMessage());
         int status = HttpStatus.UNPROCESSABLE_ENTITY.value();
         LocalDateTime timestamp = LocalDateTime.now();
         List<FieldError> errors = e.getBindingResult().getFieldErrors()
@@ -36,6 +37,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateRecordException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateRecordException(DuplicateRecordException e) {
+        logger.error(e.getMessage());
         int status = HttpStatus.CONFLICT.value();
         String message = e.getMessage();
         LocalDateTime timestamp = LocalDateTime.now();
@@ -49,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RecordNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRecordNotFoundException(RecordNotFoundException e) {
-        logger.error("Record not found: ", e);
+        logger.error(e.getMessage());
         int status = HttpStatus.NOT_FOUND.value();
         LocalDateTime timestamp = LocalDateTime.now();
         ErrorResponse errorResponse = new ErrorResponse(
