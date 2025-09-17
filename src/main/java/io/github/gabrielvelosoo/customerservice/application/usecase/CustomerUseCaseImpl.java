@@ -30,7 +30,6 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
         Customer customer = customerMapper.toEntity(customerRequestDTO);
         customerValidator.validateOnCreate(customer);
         Customer savedCustomer = customerService.save(customer);
-
         customerProducer.publishCustomerCreated(
                 new CustomerCreatedEvent(
                         savedCustomer.getId(),
@@ -39,7 +38,6 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
                         customerRequestDTO.email()
                 )
         );
-
         return customerMapper.toDTO(savedCustomer);
     }
 
@@ -50,7 +48,6 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
         Customer customer = customerService.findById(id);
         customerMapper.edit(customer, customerUpdateDTO);
         Customer editedCustomer = customerService.edit(customer);
-
         customerProducer.publishCustomerUpdated(
                 new CustomerUpdatedEvent(
                         editedCustomer.getId(),
@@ -58,7 +55,6 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
                         editedCustomer.getLastName()
                 )
         );
-
         return customerMapper.toDTO(editedCustomer);
     }
 
@@ -67,7 +63,6 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     public void delete(Long id) {
         Customer customer = customerService.findById(id);
         customerService.delete(customer);
-
         customerProducer.publishCustomerDeleted(
                 new CustomerDeletedEvent(
                         customer.getId()

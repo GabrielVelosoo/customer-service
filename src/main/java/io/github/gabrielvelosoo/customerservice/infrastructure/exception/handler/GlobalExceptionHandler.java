@@ -49,12 +49,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RecordNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRecordNotFoundException(RecordNotFoundException e) {
+        logger.error("Record not found: ", e);
         int status = HttpStatus.NOT_FOUND.value();
-        String message = e.getMessage();
         LocalDateTime timestamp = LocalDateTime.now();
         ErrorResponse errorResponse = new ErrorResponse(
                 status,
-                message,
+                "Record not found",
                 timestamp
         );
         return ResponseEntity.status(status).body(errorResponse);
@@ -68,6 +68,19 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 status,
                 "An error occurred while processing Keycloak operation",
+                timestamp
+        );
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleUnhandledErrorsException(RuntimeException e) {
+        logger.error("Unhandled exception: ", e);
+        int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        LocalDateTime timestamp = LocalDateTime.now();
+        ErrorResponse errorResponse = new ErrorResponse(
+                status,
+                "Unhandled error, contact development",
                 timestamp
         );
         return ResponseEntity.status(status).body(errorResponse);
