@@ -31,7 +31,7 @@ public class CustomerValidator {
     }
 
     public void validateOnUpdate(Long customerId, CustomerUpdateDTO customerUpdateDTO) {
-        if (customerHasRegisteredCpfOnUpdate(customerId, customerUpdateDTO.cpf())) {
+        if(customerHasRegisteredCpfOnUpdate(customerId, customerUpdateDTO.cpf())) {
             throw new DuplicateRecordException("There is already an account registered with this CPF");
         }
     }

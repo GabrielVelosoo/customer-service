@@ -103,7 +103,12 @@ public class CustomerUseCaseImplTest {
         assertEquals(customer.getLastName(), publishedEvent.lastName());
         assertEquals(customer.getEmail(), publishedEvent.email());
 
-        assertEquals(customerResponseDTO, result);
+        assertEquals(customerResponseDTO.id(), result.id());
+        assertEquals(customerResponseDTO.name(), result.name());
+        assertEquals(customerResponseDTO.lastName(), result.lastName());
+        assertEquals(customerResponseDTO.email(), result.email());
+        assertEquals(customerResponseDTO.cpf(), result.cpf());
+        assertEquals(customerResponseDTO.cep(), result.cep());
     }
 
     @Test
@@ -116,7 +121,6 @@ public class CustomerUseCaseImplTest {
         );
 
         when(customerService.findById(customer.getId())).thenReturn(customer);
-        doNothing().when(customerValidator).validateOnUpdate(customer.getId(), customerUpdateDTO);
 
         Customer editedCustomer = new Customer(
                 customer.getId(),
@@ -140,7 +144,7 @@ public class CustomerUseCaseImplTest {
                 editedCustomer.getCep(),
                 editedCustomer.getBirthDate()
         );
-        when(customerMapper.toDTO(any(Customer.class))).thenReturn(updatedDTO);
+        when(customerMapper.toDTO(editedCustomer)).thenReturn(updatedDTO);
 
         CustomerResponseDTO result = customerUseCase.edit(customer.getId(), customerUpdateDTO);
 
@@ -148,7 +152,7 @@ public class CustomerUseCaseImplTest {
         verify(customerValidator).validateOnUpdate(customer.getId(), customerUpdateDTO);
         verify(customerMapper).edit(customer, customerUpdateDTO);
         verify(customerService).edit(customer);
-        verify(customerMapper).toDTO(any(Customer.class));
+        verify(customerMapper).toDTO(editedCustomer);
 
         ArgumentCaptor<CustomerUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerUpdatedEvent.class);
         verify(customerProducer).publishCustomerUpdated(eventCaptor.capture());
@@ -158,6 +162,7 @@ public class CustomerUseCaseImplTest {
         assertEquals(customerUpdateDTO.name(), publishedEvent.name());
         assertEquals(customerUpdateDTO.lastName(), publishedEvent.lastName());
 
+        assertEquals(updatedDTO.id(), result.id());
         assertEquals(customerUpdateDTO.name(), result.name());
         assertEquals(customerUpdateDTO.lastName(), result.lastName());
         assertEquals(customerUpdateDTO.cpf(), result.cpf());
@@ -170,7 +175,6 @@ public class CustomerUseCaseImplTest {
         customerUseCase.delete(customer.getId());
 
         verify(customerService).findById(customer.getId());
-
         verify(customerService).delete(customer);
 
         ArgumentCaptor<CustomerDeletedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerDeletedEvent.class);
