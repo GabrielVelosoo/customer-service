@@ -50,4 +50,17 @@ public class Customer implements Serializable {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Customer() {}
+
+    public Customer(Long id, String name, String lastName, String keycloakUserId, String email, String cpf, String cep, LocalDate birthDate) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.keycloakUserId = keycloakUserId;
+        this.email = email;
+        this.cpf = cpf;
+        this.cep = cep;
+        this.birthDate = birthDate;
+    }
 }

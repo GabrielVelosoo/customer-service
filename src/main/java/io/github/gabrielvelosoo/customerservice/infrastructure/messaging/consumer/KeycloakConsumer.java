@@ -5,7 +5,7 @@ import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerDe
 import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerUpdatedEvent;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.service.auth.IdentityProvider;
-import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
+import io.github.gabrielvelosoo.customerservice.domain.service.CustomerService;
 import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.config.RabbitConfig;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;

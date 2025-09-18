@@ -1,4 +1,4 @@
-package io.github.gabrielvelosoo.customerservice.domain.service.customer;
+package io.github.gabrielvelosoo.customerservice.domain.service;
 
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;

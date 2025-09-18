@@ -9,7 +9,7 @@ import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerUp
 import io.github.gabrielvelosoo.customerservice.application.mapper.CustomerMapper;
 import io.github.gabrielvelosoo.customerservice.application.validator.custom.CustomerValidator;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
-import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
+import io.github.gabrielvelosoo.customerservice.domain.service.CustomerService;
 import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.producer.CustomerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,8 +44,8 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     @Override
     @Transactional
     public CustomerResponseDTO edit(Long id, CustomerUpdateDTO customerUpdateDTO) {
-        customerValidator.validateOnUpdate(id, customerUpdateDTO);
         Customer customer = customerService.findById(id);
+        customerValidator.validateOnUpdate(id, customerUpdateDTO);
         customerMapper.edit(customer, customerUpdateDTO);
         Customer editedCustomer = customerService.edit(customer);
         customerProducer.publishCustomerUpdated(
