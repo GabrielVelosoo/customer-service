@@ -26,26 +26,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CustomerUseCaseImplTest {
+class CustomerUseCaseImplTest {
 
     @Mock
-    private CustomerService customerService;
+    CustomerService customerService;
 
     @Mock
-    private CustomerMapper customerMapper;
+    CustomerMapper customerMapper;
 
     @Mock
-    private CustomerValidator customerValidator;
+    CustomerValidator customerValidator;
 
     @Mock
-    private CustomerProducer customerProducer;
+    CustomerProducer customerProducer;
 
     @InjectMocks
-    private CustomerUseCaseImpl customerUseCase;
+    CustomerUseCaseImpl customerUseCase;
 
-    private CustomerRequestDTO customerRequestDTO;
-    private CustomerResponseDTO customerResponseDTO;
-    private Customer customer;
+    CustomerRequestDTO customerRequestDTO;
+    CustomerResponseDTO customerResponseDTO;
+    Customer customer;
 
     @BeforeEach
     void setUp() {

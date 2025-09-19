@@ -55,9 +55,17 @@ class CustomerRepositoryTest {
     @Test
     @DisplayName("Should get Customer successfully from database")
     void shouldFindByCpfAndNotIdSuccessfully() {
-        Optional<Customer> foundedCustomer = customerRepository.findByCpfAndNotId(customer2.getCpf(), customer1.getId());
+        Optional<Customer> result = customerRepository.findByCpfAndNotId(customer2.getCpf(), customer1.getId());
 
-        assertTrue(foundedCustomer.isPresent(), "Should find another customer with same CPF");
-        assertEquals(customer2.getId(), foundedCustomer.get().getId(), "The found customer should be c2");
+        assertTrue(result.isPresent(), "Should find another customer with same CPF");
+        assertEquals(customer2.getId(), result.get().getId(), "The found customer should be c2");
+    }
+
+    @Test
+    @DisplayName("Should return empty when no other customer has the same CPF")
+    void shouldReturnEmptyWhenNoOtherCustomerWithSameCpf() {
+        Optional<Customer> result = customerRepository.findByCpfAndNotId(customer1.getCpf(), customer1.getId());
+
+        assertTrue(result.isEmpty(), "Should not find any other customer with same CPF");
     }
 }

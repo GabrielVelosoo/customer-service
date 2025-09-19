@@ -4,6 +4,7 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.RecordNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,19 +16,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CustomerServiceImplTest {
+class CustomerServiceImplTest {
 
     @Mock
-    private CustomerRepository customerRepository;
+    CustomerRepository customerRepository;
 
     @InjectMocks
-    private CustomerServiceImpl customerService;
+    CustomerServiceImpl customerService;
 
-    private Customer customer;
+    Customer customer;
 
     @BeforeEach
     void setUp() {
@@ -44,48 +44,65 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    void shouldSaveCustomer() {
-        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+    @DisplayName("Should create Customer successfully")
+    void shouldCreateCustomer() {
+        when(customerRepository.save(customer)).thenReturn(customer);
+
         Customer savedCustomer = customerService.save(customer);
+
         assertNotNull(savedCustomer);
         assertEquals(10L, savedCustomer.getId());
         assertEquals("XXXXX", savedCustomer.getName());
-        verify(customerRepository).save(any(Customer.class));
+
+        verify(customerRepository, times(1)).save(customer);
     }
 
     @Test
+    @DisplayName("Should get Customer by id successfully")
     void shouldFindCustomerById() {
         when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
+
         Customer found = customerService.findById(10L);
+
         assertNotNull(found);
         assertEquals(10L, found.getId());
-        verify(customerRepository).findById(10L);
+
+        verify(customerRepository, times(1)).findById(10L);
     }
 
     @Test
+    @DisplayName("Should throw exception when Customer not found")
     void shouldThrowExceptionWhenCustomerNotFound() {
         when(customerRepository.findById(10L)).thenReturn(Optional.empty());
+
         RecordNotFoundException e = assertThrows(
                 RecordNotFoundException.class,
                 () -> customerService.findById(10L)
         );
+
         assertEquals("Customer not found: 10", e.getMessage());
-        verify(customerRepository).findById(10L);
+
+        verify(customerRepository, times(1)).findById(10L);
     }
 
     @Test
+    @DisplayName("Should edit Customer successfully")
     void shouldEditCustomer() {
-        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+        when(customerRepository.save(customer)).thenReturn(customer);
+
         Customer editedCustomer = customerService.edit(customer);
+
         assertNotNull(editedCustomer);
         assertEquals("XXXXX", editedCustomer.getName());
-        verify(customerRepository).save(any(Customer.class));
+
+        verify(customerRepository, times(1)).save(customer);
     }
 
     @Test
+    @DisplayName("Should delete Customer successfully")
     void shouldDeleteCustomer() {
-        doNothing().when(customerRepository).delete(any(Customer.class));
+        doNothing().when(customerRepository).delete(customer);
         customerService.delete(customer);
-        verify(customerRepository).delete(any(Customer.class));
+        verify(customerRepository, times(1)).delete(customer);
     }
 }

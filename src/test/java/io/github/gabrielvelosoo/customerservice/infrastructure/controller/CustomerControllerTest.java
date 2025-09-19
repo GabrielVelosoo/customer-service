@@ -19,19 +19,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerController.class)
-public class CustomerControllerTest {
+class CustomerControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @MockitoBean
-    private CustomerUseCase customerUseCase;
+    CustomerUseCase customerUseCase;
 
-    private CustomerRequestDTO customerRequestDTO;
-    private CustomerResponseDTO customerResponseDTO;
+    CustomerRequestDTO customerRequestDTO;
+    CustomerResponseDTO customerResponseDTO;
 
     @BeforeEach
     void setUp() {
