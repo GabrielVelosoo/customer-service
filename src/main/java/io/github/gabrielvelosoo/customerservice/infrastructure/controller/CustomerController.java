@@ -27,11 +27,11 @@ public class CustomerController implements GenericController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CustomerResponseDTO> edit(@PathVariable(name = "id") Long id,
-                                                    @RequestBody @Validated(ValidationOrder.class) CustomerUpdateDTO customerUpdateDTO
+        public ResponseEntity<CustomerResponseDTO> edit(@PathVariable(name = "id") Long id,
+                @RequestBody @Validated(ValidationOrder.class) CustomerUpdateDTO customerUpdateDTO
     ) {
-        CustomerResponseDTO customerResponseDTO = customerUseCase.edit(id, customerUpdateDTO);
-        return ResponseEntity.ok(customerResponseDTO);
+            CustomerResponseDTO customerResponseDTO = customerUseCase.edit(id, customerUpdateDTO);
+            return ResponseEntity.ok(customerResponseDTO);
     }
 
     @DeleteMapping(value = "/{id}")

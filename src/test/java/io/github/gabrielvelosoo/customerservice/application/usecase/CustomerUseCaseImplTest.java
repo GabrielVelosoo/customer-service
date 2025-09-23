@@ -45,6 +45,7 @@ class CustomerUseCaseImplTest {
 
     CustomerRequestDTO customerRequestDTO;
     CustomerResponseDTO customerResponseDTO;
+    CustomerUpdateDTO customerUpdateDTO;
     Customer customer;
 
     @BeforeEach
@@ -79,23 +80,30 @@ class CustomerUseCaseImplTest {
                 customer.getCep(),
                 customer.getBirthDate()
         );
+
+        customerUpdateDTO = new CustomerUpdateDTO(
+                "YYYYY",
+                "XXXXX",
+                "00000000000",
+                LocalDate.of(1990, 1, 1)
+        );
     }
 
     @Test
-    void shouldCreateCustomerSuccessfully() {
+    void shouldCreateCustomerAndPublishEventSuccessfully() {
         when(customerMapper.toEntity(customerRequestDTO)).thenReturn(customer);
         when(customerService.save(customer)).thenReturn(customer);
         when(customerMapper.toDTO(customer)).thenReturn(customerResponseDTO);
 
         CustomerResponseDTO result = customerUseCase.create(customerRequestDTO);
 
-        verify(customerValidator).validateOnCreate(customer);
-        verify(customerService).save(customer);
-        verify(customerMapper).toEntity(customerRequestDTO);
-        verify(customerMapper).toDTO(customer);
+        verify(customerValidator, times(1)).validateOnCreate(customer);
+        verify(customerService, times(1)).save(customer);
+        verify(customerMapper, times(1)).toEntity(customerRequestDTO);
+        verify(customerMapper, times(1)).toDTO(customer);
 
         ArgumentCaptor<CustomerCreatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerCreatedEvent.class);
-        verify(customerProducer).publishCustomerCreated(eventCaptor.capture());
+        verify(customerProducer, times(1)).publishCustomerCreated(eventCaptor.capture());
 
         CustomerCreatedEvent publishedEvent = eventCaptor.getValue();
         assertEquals(customer.getId(), publishedEvent.customerId());
@@ -112,16 +120,8 @@ class CustomerUseCaseImplTest {
     }
 
     @Test
-    void shouldEditCustomerSuccessfully() {
-        CustomerUpdateDTO customerUpdateDTO = new CustomerUpdateDTO(
-                "YYYYY",
-                "XXXXX",
-                "00000000000",
-                LocalDate.of(1990, 1, 1)
-        );
-
+    void shouldEditCustomerAndPublishEventSuccessfully() {
         when(customerService.findById(customer.getId())).thenReturn(customer);
-
         Customer editedCustomer = new Customer(
                 customer.getId(),
                 customerUpdateDTO.name(),
@@ -132,7 +132,6 @@ class CustomerUseCaseImplTest {
                 customer.getCep(),
                 customer.getBirthDate()
         );
-
         when(customerService.edit(customer)).thenReturn(editedCustomer);
 
         CustomerResponseDTO updatedDTO = new CustomerResponseDTO(
@@ -148,14 +147,14 @@ class CustomerUseCaseImplTest {
 
         CustomerResponseDTO result = customerUseCase.edit(customer.getId(), customerUpdateDTO);
 
-        verify(customerService).findById(customer.getId());
-        verify(customerValidator).validateOnUpdate(customer.getId(), customerUpdateDTO);
-        verify(customerMapper).edit(customer, customerUpdateDTO);
-        verify(customerService).edit(customer);
-        verify(customerMapper).toDTO(editedCustomer);
+        verify(customerService, times(1)).findById(customer.getId());
+        verify(customerValidator, times(1)).validateOnUpdate(customer.getId(), customerUpdateDTO);
+        verify(customerMapper, times(1)).edit(customer, customerUpdateDTO);
+        verify(customerService, times(1)).edit(customer);
+        verify(customerMapper, times(1)).toDTO(editedCustomer);
 
         ArgumentCaptor<CustomerUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerUpdatedEvent.class);
-        verify(customerProducer).publishCustomerUpdated(eventCaptor.capture());
+        verify(customerProducer, times(1)).publishCustomerUpdated(eventCaptor.capture());
 
         CustomerUpdatedEvent publishedEvent = eventCaptor.getValue();
         assertEquals(customer.getId(), publishedEvent.customerId());
@@ -169,16 +168,16 @@ class CustomerUseCaseImplTest {
     }
 
     @Test
-    void shouldDeleteCustomerSuccessfully() {
+    void shouldDeleteCustomerAndPublishEventSuccessfully() {
         when(customerService.findById(customer.getId())).thenReturn(customer);
 
         customerUseCase.delete(customer.getId());
 
-        verify(customerService).findById(customer.getId());
-        verify(customerService).delete(customer);
+        verify(customerService, times(1)).findById(customer.getId());
+        verify(customerService, times(1)).delete(customer);
 
         ArgumentCaptor<CustomerDeletedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerDeletedEvent.class);
-        verify(customerProducer).publishCustomerDeleted(eventCaptor.capture());
+        verify(customerProducer, times(1)).publishCustomerDeleted(eventCaptor.capture());
 
         CustomerDeletedEvent publishedEvent = eventCaptor.getValue();
         assertEquals(customer.getId(), publishedEvent.customerId());

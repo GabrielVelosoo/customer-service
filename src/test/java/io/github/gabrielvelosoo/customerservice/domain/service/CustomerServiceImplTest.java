@@ -4,7 +4,6 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.RecordNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,8 +43,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should create Customer successfully")
-    void shouldCreateCustomer() {
+    void shouldCreateCustomerSuccessfully() {
         when(customerRepository.save(customer)).thenReturn(customer);
 
         Customer savedCustomer = customerService.save(customer);
@@ -58,8 +56,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should get Customer by id successfully")
-    void shouldFindCustomerById() {
+    void shouldFindCustomerByIdSuccessfully() {
         when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
 
         Customer found = customerService.findById(10L);
@@ -71,8 +68,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when Customer not found")
-    void shouldThrowExceptionWhenCustomerNotFound() {
+    void shouldThrowExceptionWhenCustomerDoesNotExist() {
         when(customerRepository.findById(10L)).thenReturn(Optional.empty());
 
         RecordNotFoundException e = assertThrows(
@@ -86,8 +82,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should edit Customer successfully")
-    void shouldEditCustomer() {
+    void shouldSaveEditedCustomerSuccessfully() {
         when(customerRepository.save(customer)).thenReturn(customer);
 
         Customer editedCustomer = customerService.edit(customer);
@@ -99,8 +94,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should delete Customer successfully")
-    void shouldDeleteCustomer() {
+    void shouldDeleteCustomerUsingRepositorySuccessfully() {
         doNothing().when(customerRepository).delete(customer);
         customerService.delete(customer);
         verify(customerRepository, times(1)).delete(customer);

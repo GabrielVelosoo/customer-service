@@ -2,24 +2,22 @@ package io.github.gabrielvelosoo.customerservice.domain.repository;
 
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
-@DataJpaTest
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class CustomerRepositoryTest {
 
-    @Autowired
+    @Mock
     CustomerRepository customerRepository;
 
     Customer customer1;
@@ -28,44 +26,47 @@ class CustomerRepositoryTest {
     @BeforeEach
     void setUp() {
         customer1 = new Customer(
-                null,
+                1L,
                 "YYYYY",
                 "XXXXX",
-                UUID.randomUUID().toString(),
+                "uuid-1",
                 "abcd@example.com",
                 "00000000000",
                 "77777777",
                 LocalDate.of(1990, 2, 23)
         );
-        customer1 = customerRepository.saveAndFlush(customer1);
 
         customer2 = new Customer(
-                null,
+                2L,
                 "XXXXX",
                 "YYYYY",
-                UUID.randomUUID().toString(),
+                "uuid-2",
                 "dcba@example.com",
                 "11111111111",
                 "55555555",
                 LocalDate.of(2000, 5, 15)
         );
-        customer2 = customerRepository.saveAndFlush(customer2);
     }
 
     @Test
-    @DisplayName("Should get Customer successfully from database")
-    void shouldFindByCpfAndNotIdSuccessfully() {
+    void shouldReturnCustomerWhenCpfExistsAndIdIsDifferent() {
+        when(customerRepository.findByCpfAndNotId(customer2.getCpf(), customer1.getId())).thenReturn(Optional.of(customer2));
+
         Optional<Customer> result = customerRepository.findByCpfAndNotId(customer2.getCpf(), customer1.getId());
 
-        assertTrue(result.isPresent(), "Should find another customer with same CPF");
-        assertEquals(customer2.getId(), result.get().getId(), "The found customer should be c2");
+        assertTrue(result.isPresent());
+        assertEquals(customer2.getId(), result.get().getId());
+
+        verify(customerRepository, times(1)).findByCpfAndNotId(customer2.getCpf(), customer1.getId());
     }
 
     @Test
-    @DisplayName("Should return empty when no other customer has the same CPF")
-    void shouldReturnEmptyWhenNoOtherCustomerWithSameCpf() {
+    void shouldReturnEmptyWhenCpfDoesNotExistForOtherIds() {
+        when(customerRepository.findByCpfAndNotId(customer1.getCpf(), customer1.getId())).thenReturn(Optional.empty());
+
         Optional<Customer> result = customerRepository.findByCpfAndNotId(customer1.getCpf(), customer1.getId());
 
-        assertTrue(result.isEmpty(), "Should not find any other customer with same CPF");
+        assertTrue(result.isEmpty());
+        verify(customerRepository, times(1)).findByCpfAndNotId(customer1.getCpf(), customer1.getId());
     }
 }
