@@ -79,7 +79,7 @@ class KeycloakUserServiceTest {
                 .build();
         when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
 
-        String userId = keycloakUserService.createUser("test@example.com", "John", "Doe");
+        String userId = keycloakUserService.createUser("test@example.com", "test123", "John", "Doe");
 
         assertEquals("123", userId);
         verify(usersResource).create(any(UserRepresentation.class));
@@ -113,7 +113,7 @@ class KeycloakUserServiceTest {
 
         KeycloakException e = assertThrows(
                 KeycloakException.class,
-                () -> keycloakUserService.createUser("test@example.com", "John", "Doe")
+                () -> keycloakUserService.createUser("test@example.com", "test123", "John", "Doe")
         );
 
         assertEquals("Failed to create user in Keycloak: User already exists in Keycloak: test@example.com", e.getMessage());
@@ -128,7 +128,7 @@ class KeycloakUserServiceTest {
 
         KeycloakException e = assertThrows(
                 KeycloakException.class,
-                () -> keycloakUserService.createUser("test@example.com", "John", "Doe")
+                () -> keycloakUserService.createUser("test@example.com", "test123", "John", "Doe")
         );
 
         assertEquals("Failed to create user in Keycloak: Error creating user in Keycloak: 500", e.getMessage());

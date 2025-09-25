@@ -53,8 +53,8 @@ class CustomerUseCaseImplTest {
         customerRequestDTO = new CustomerRequestDTO(
                 "XXXXX",
                 "YYYYY",
-                "abcd@example.com",
-                "abcd",
+                "test@example.com",
+                "test123",
                 "00000000000",
                 "00000000",
                 LocalDate.of(1990, 1, 1)
@@ -65,7 +65,7 @@ class CustomerUseCaseImplTest {
                 "XXXXX",
                 "YYYYY",
                 UUID.randomUUID().toString(),
-                "abcd@example.com",
+                "test@example.com",
                 "00000000000",
                 "00000000",
                 LocalDate.of(1990, 2, 23)

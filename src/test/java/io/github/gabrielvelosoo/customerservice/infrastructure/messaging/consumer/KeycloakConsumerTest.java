@@ -51,7 +51,8 @@ class KeycloakConsumerTest {
                 1L,
                 "test@test.com",
                 "John",
-                "Doe"
+                "Doe",
+                "test123"
         );
 
         customerUpdatedEvent = new CustomerUpdatedEvent(
@@ -68,11 +69,11 @@ class KeycloakConsumerTest {
     @Test
     void shouldCreateKeycloakUserWhenCustomerHasNoUserId() {
         when(customerService.findById(1L)).thenReturn(customer);
-        when(identityProvider.createUser(customerCreatedEvent.email(), customerCreatedEvent.name(), customerCreatedEvent.lastName())).thenReturn("kc-uuid-123");
+        when(identityProvider.createUser(customerCreatedEvent.email(), customerCreatedEvent.password(), customerCreatedEvent.name(), customerCreatedEvent.lastName())).thenReturn("kc-uuid-123");
         keycloakConsumer.handleCustomerCreated(customerCreatedEvent);
         assertEquals("kc-uuid-123", customer.getKeycloakUserId());
         verify(customerService).save(customer);
-        verify(identityProvider).createUser(customerCreatedEvent.email(), customerCreatedEvent.name(), customerCreatedEvent.lastName());
+        verify(identityProvider).createUser(customerCreatedEvent.email(), customerCreatedEvent.password(), customerCreatedEvent.name(), customerCreatedEvent.lastName());
     }
 
     @Test
@@ -80,7 +81,7 @@ class KeycloakConsumerTest {
         customer.setKeycloakUserId("kc-uuid-999");
         when(customerService.findById(1L)).thenReturn(customer);
         keycloakConsumer.handleCustomerCreated(customerCreatedEvent);
-        verify(identityProvider, never()).createUser(customerCreatedEvent.email(), customerCreatedEvent.name(), customerCreatedEvent.lastName());
+        verify(identityProvider, never()).createUser(customerCreatedEvent.email(), customerCreatedEvent.password(), customerCreatedEvent.name(), customerCreatedEvent.lastName());
         verify(customerService, never()).save(customer);
     }
 

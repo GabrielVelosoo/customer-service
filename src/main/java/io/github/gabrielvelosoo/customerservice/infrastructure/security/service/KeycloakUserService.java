@@ -2,7 +2,6 @@ package io.github.gabrielvelosoo.customerservice.infrastructure.security.service
 
 import io.github.gabrielvelosoo.customerservice.domain.service.auth.IdentityProvider;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.KeycloakException;
-import io.github.gabrielvelosoo.customerservice.infrastructure.security.util.PasswordGenerator;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +29,7 @@ public class KeycloakUserService implements IdentityProvider {
     private String realm;
 
     @Override
-    public String createUser(String email, String name, String lastName) {
+    public String createUser(String email, String password, String name, String lastName) {
         logger.info("Creating Keycloak user with email='{}'", email);
         try {
             if(userExists(email)) {
@@ -54,11 +53,10 @@ public class KeycloakUserService implements IdentityProvider {
             String userId = CreatedResponseUtil.getCreatedId(response);
             logger.info("Keycloak user '{}' created successfully with id='{}'", email, userId);
 
-            String tempPassword = PasswordGenerator.generate(10);
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setTemporary(true);
             credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(tempPassword);
+            credential.setValue(password);
             keycloak.realm(realm).users().get(userId).resetPassword(credential);
             logger.info("Password set for user '{}'", userId);
 

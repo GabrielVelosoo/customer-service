@@ -35,7 +35,8 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
                         savedCustomer.getId(),
                         savedCustomer.getName(),
                         savedCustomer.getLastName(),
-                        customerRequestDTO.email()
+                        customerRequestDTO.email(),
+                        customerRequestDTO.password()
                 )
         );
         return customerMapper.toDTO(savedCustomer);

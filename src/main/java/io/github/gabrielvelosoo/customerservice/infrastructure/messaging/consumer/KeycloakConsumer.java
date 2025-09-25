@@ -32,9 +32,9 @@ public class KeycloakConsumer {
             }
             String keycloakUserId = identityProvider.createUser(
                     event.email(),
+                    event.password(),
                     event.name(),
-                    event.lastName()
-            );
+                    event.lastName());
             customer.setKeycloakUserId(keycloakUserId);
             customerService.save(customer);
             logger.info("Keycloak user created and linked for customerId '{}'", event.customerId());

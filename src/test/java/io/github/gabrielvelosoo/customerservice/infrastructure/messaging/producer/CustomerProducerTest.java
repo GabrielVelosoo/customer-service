@@ -33,7 +33,8 @@ class CustomerProducerTest {
                 1L,
                 "test@test.com",
                 "John",
-                "Doe"
+                "Doe",
+                "test123"
         );
 
         customerUpdatedEvent = new CustomerUpdatedEvent(
