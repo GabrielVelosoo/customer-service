@@ -35,7 +35,7 @@ public class KeycloakUserService implements IdentityProvider {
         try {
             if(userExists(email)) {
                 logger.error("User '{}' already exists", email);
-                throw new RuntimeException("User already exists in Keycloak: " + email);
+                throw new KeycloakException("User already exists in Keycloak: " + email);
             }
 
             UserRepresentation user = new UserRepresentation();
@@ -120,7 +120,7 @@ public class KeycloakUserService implements IdentityProvider {
             logger.info("Keycloak user '{}' deleted successfully", userId);
         } catch(Exception e) {
             logger.error("Error deleting Keycloak user '{}'", userId, e);
-            throw new KeycloakException("Failed to delete user in Keycloak: " + e.getMessage(), e);
+            throw new KeycloakException("Failed to delete user in Keycloak: " + userId, e);
         }
     }
 }
