@@ -87,7 +87,7 @@ public class KeycloakUserService implements IdentityProvider {
             logger.info("Role '{}' assigned successfully to user '{}'", role, userId);
         } catch(Exception e) {
             logger.error("Error assigning role '{}' to user '{}'", role, userId, e);
-            throw new KeycloakException("Failed to assign role in Keycloak: " + e.getMessage(), e);
+            throw new KeycloakException("Failed to assign role in Keycloak", e);
         }
     }
 

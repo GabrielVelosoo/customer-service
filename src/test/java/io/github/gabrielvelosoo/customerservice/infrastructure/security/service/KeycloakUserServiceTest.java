@@ -43,41 +43,78 @@ class KeycloakUserServiceTest {
     @Mock
     RoleResource roleResource;
 
+    @Mock
+    RoleMappingResource roleMappingResource;
+
+    @Mock
+    RoleScopeResource roleScopeResource;
+
     @InjectMocks
     KeycloakUserService keycloakUserService;
 
     @BeforeEach
     void setUp() {
-        when(keycloak.realm(anyString())).thenReturn(realmResource);
-        when(realmResource.users()).thenReturn(usersResource);
-
         ReflectionTestUtils.setField(keycloakUserService, "realm", "test-realm");
+
+        lenient().when(keycloak.realm(anyString())).thenReturn(realmResource);
+        lenient().when(realmResource.users()).thenReturn(usersResource);
+        lenient().when(usersResource.get(anyString())).thenReturn(userResource);
+
+        lenient().when(realmResource.roles()).thenReturn(rolesResource);
+        lenient().when(rolesResource.get(anyString())).thenReturn(roleResource);
+        lenient().when(roleResource.toRepresentation()).thenReturn(new RoleRepresentation("USER", null, false));
+
+        lenient().when(userResource.roles()).thenReturn(roleMappingResource);
+        lenient().when(roleMappingResource.realmLevel()).thenReturn(roleScopeResource);
+        lenient().doNothing().when(roleScopeResource).add(anyList());
+        lenient().doNothing().when(userResource).resetPassword(any(CredentialRepresentation.class));
     }
 
     @Test
     void shouldCreateUserSuccessfully() {
         when(usersResource.search("test@example.com", true)).thenReturn(List.of());
-        Response response = mock(Response.class);
+        Response response = Response
+                .status(Response.Status.CREATED)
+                .header("Location", "http://localhost/users/123")
+                .build();
         when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
-        when(response.getStatus()).thenReturn(201);
-        when(response.getHeaderString("Location")).thenReturn("http://localhost/users/123");
-        when(usersResource.get("123")).thenReturn(userResource);
-
-        doNothing().when(userResource).resetPassword(any(CredentialRepresentation.class));
 
         String userId = keycloakUserService.createUser("test@example.com", "John", "Doe");
 
         assertEquals("123", userId);
         verify(usersResource).create(any(UserRepresentation.class));
         verify(userResource).resetPassword(any(CredentialRepresentation.class));
+        verify(roleScopeResource).add(anyList());
+    }
+
+    @Test
+    void shouldReturnTrueWhenUserExists() {
+        when(usersResource.search("test@example.com", true)).thenReturn(List.of(new UserRepresentation()));
+
+        boolean exists = Boolean.TRUE.equals(ReflectionTestUtils.invokeMethod(keycloakUserService, "userExists", "test@example.com"));
+
+        assertTrue(exists);
+        verify(usersResource).search("test@example.com", true);
+    }
+
+    @Test
+    void shouldReturnFalseWhenUserDoesNotExist() {
+        when(usersResource.search("test@example.com", true)).thenReturn(List.of());
+
+        boolean exists = Boolean.TRUE.equals(ReflectionTestUtils.invokeMethod(keycloakUserService, "userExists", "test@example.com"));
+
+        assertFalse(exists);
+        verify(usersResource).search("test@example.com", true);
     }
 
     @Test
     void shouldThrowExceptionWhenUserAlreadyExistsOnCreate() {
         when(usersResource.search("test@example.com", true)).thenReturn(List.of(new UserRepresentation()));
 
-        KeycloakException e = assertThrows(KeycloakException.class,
-                () -> keycloakUserService.createUser("test@example.com", "John", "Doe"));
+        KeycloakException e = assertThrows(
+                KeycloakException.class,
+                () -> keycloakUserService.createUser("test@example.com", "John", "Doe")
+        );
 
         assertEquals("Failed to create user in Keycloak: User already exists in Keycloak: test@example.com", e.getMessage());
     }
@@ -89,8 +126,10 @@ class KeycloakUserServiceTest {
         when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
         when(response.getStatus()).thenReturn(500);
 
-        KeycloakException e = assertThrows(KeycloakException.class,
-                () -> keycloakUserService.createUser("test@example.com", "John", "Doe"));
+        KeycloakException e = assertThrows(
+                KeycloakException.class,
+                () -> keycloakUserService.createUser("test@example.com", "John", "Doe")
+        );
 
         assertEquals("Failed to create user in Keycloak: Error creating user in Keycloak: 500", e.getMessage());
     }
@@ -100,20 +139,25 @@ class KeycloakUserServiceTest {
         RoleRepresentation roleRepresentation = new RoleRepresentation();
         roleRepresentation.setName("USER");
 
-        when(rolesResource.get("USER")).thenReturn(roleResource);
         when(roleResource.toRepresentation()).thenReturn(roleRepresentation);
-        when(usersResource.get("123")).thenReturn(userResource);
-
-        RoleMappingResource roleMappingResource = mock(RoleMappingResource.class);
-        RoleScopeResource roleScopeResource = mock(RoleScopeResource.class);
-        when(userResource.roles()).thenReturn(roleMappingResource);
-        when(roleMappingResource.realmLevel()).thenReturn(roleScopeResource);
-        doNothing().when(roleScopeResource).add(anyList());
 
         keycloakUserService.assignRole("123", "USER");
 
         verify(rolesResource).get("USER");
         verify(roleScopeResource).add(List.of(roleRepresentation));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAssignRoleFails() {
+        when(rolesResource.get("USER")).thenThrow(new RuntimeException("Role not found"));
+
+        KeycloakException e = assertThrows(
+                KeycloakException.class,
+                () -> keycloakUserService.assignRole("123", "USER")
+        );
+
+        assertEquals("Failed to assign role in Keycloak", e.getMessage());
+        assertInstanceOf(RuntimeException.class, e.getCause());
     }
 
     @Test
@@ -128,6 +172,20 @@ class KeycloakUserServiceTest {
         assertEquals("NewName", userRep.getFirstName());
         assertEquals("NewLast", userRep.getLastName());
         verify(userResource).update(userRep);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEditUserFails() {
+        when(usersResource.get("123")).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenThrow(new RuntimeException("Cannot fetch user"));
+
+        KeycloakException e = assertThrows(
+                KeycloakException.class,
+                () -> keycloakUserService.editUser("123", "Name", "Last")
+        );
+
+        assertEquals("Failed to update user in Keycloak: Cannot fetch user", e.getMessage());
+        assertInstanceOf(RuntimeException.class, e.getCause());
     }
 
     @Test

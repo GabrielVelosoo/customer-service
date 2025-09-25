@@ -53,6 +53,16 @@ public class Customer implements Serializable {
 
     public Customer() {}
 
+    public Customer(Long id, String name, String lastName, String email, String cpf, String cep, LocalDate birthDate) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.cpf = cpf;
+        this.cep = cep;
+        this.birthDate = birthDate;
+    }
+
     public Customer(Long id, String name, String lastName, String keycloakUserId, String email, String cpf, String cep, LocalDate birthDate) {
         this.id = id;
         this.name = name;

@@ -9,7 +9,7 @@ import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerUp
 import io.github.gabrielvelosoo.customerservice.application.mapper.CustomerMapper;
 import io.github.gabrielvelosoo.customerservice.application.validator.custom.CustomerValidator;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
-import io.github.gabrielvelosoo.customerservice.domain.service.CustomerService;
+import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
 import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.producer.CustomerProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
