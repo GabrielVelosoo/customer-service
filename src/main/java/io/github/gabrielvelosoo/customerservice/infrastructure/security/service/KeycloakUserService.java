@@ -54,7 +54,7 @@ public class KeycloakUserService implements IdentityProvider {
             logger.info("Keycloak user '{}' created successfully with id='{}'", email, userId);
 
             CredentialRepresentation credential = new CredentialRepresentation();
-            credential.setTemporary(true);
+            credential.setTemporary(false);
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setValue(password);
             keycloak.realm(realm).users().get(userId).resetPassword(credential);
