@@ -24,6 +24,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public Customer findByKeycloakUserId(String keycloakUserId) {
+        return customerRepository.findByKeycloakUserId(keycloakUserId)
+                .orElseThrow( () -> new RecordNotFoundException("Customer with this keycloakUserId not found: " + keycloakUserId) );
+    }
+
+    @Override
     public Customer edit(Customer customer) {
         return customerRepository.save(customer);
     }

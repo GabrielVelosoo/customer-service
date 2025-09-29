@@ -1,4 +1,4 @@
-package io.github.gabrielvelosoo.customerservice.application.usecase;
+package io.github.gabrielvelosoo.customerservice.application.usecase.customer;
 
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
@@ -12,10 +12,10 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
 import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.producer.CustomerProducer;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class CustomerUseCaseImpl implements CustomerUseCase {
 

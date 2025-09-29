@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerUpdateDTO;
-import io.github.gabrielvelosoo.customerservice.application.usecase.CustomerUseCase;
+import io.github.gabrielvelosoo.customerservice.application.usecase.customer.CustomerUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

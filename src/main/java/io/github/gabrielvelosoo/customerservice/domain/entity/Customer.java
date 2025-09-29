@@ -1,5 +1,6 @@
 package io.github.gabrielvelosoo.customerservice.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_customer")
@@ -42,6 +45,10 @@ public class Customer implements Serializable {
 
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Address> addresses = new ArrayList<>();
 
     @CreatedDate
     @Column(name = "created_at")

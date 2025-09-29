@@ -11,6 +11,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByEmail(String email);
     Optional<Customer> findByCpf(String cpf);
+    Optional<Customer> findByKeycloakUserId(String keycloakUserId);
 
     @Query("SELECT c FROM Customer c WHERE c.cpf = :cpf AND c.id <> :id")
     Optional<Customer> findByCpfAndNotId(@Param("cpf") String cpf, @Param("id") Long id);

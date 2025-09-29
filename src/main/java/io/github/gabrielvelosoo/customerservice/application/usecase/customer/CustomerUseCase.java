@@ -1,4 +1,4 @@
-package io.github.gabrielvelosoo.customerservice.application.usecase;
+package io.github.gabrielvelosoo.customerservice.application.usecase.customer;
 
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
