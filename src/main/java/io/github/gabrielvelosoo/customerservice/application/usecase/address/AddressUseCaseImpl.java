@@ -11,6 +11,8 @@ import io.github.gabrielvelosoo.customerservice.domain.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class AddressUseCaseImpl implements AddressUseCase {
@@ -28,5 +30,28 @@ public class AddressUseCaseImpl implements AddressUseCase {
         addressValidator.validateOnCreate(address);
         Address savedAddress = addressService.create(address);
         return addressMapper.toDTO(savedAddress);
+    }
+
+    @Override
+    public List<AddressResponseDTO> getAddressesLoggedCustomer() {
+        Customer customer = authService.getLoggedCustomer();
+        List<Address> addresses = addressService.getAddressesLoggedCustomer(customer.getId());
+        return addressMapper.toDTOs(addresses);
+    }
+
+    @Override
+    public AddressResponseDTO edit(Long addressId, AddressRequestDTO addressRequestDTO) {
+        Address address = addressService.findById(addressId);
+        addressValidator.validateOnUpdateAndDelete(address);
+        addressMapper.edit(address, addressRequestDTO);
+        Address updatedAddress = addressService.edit(address);
+        return addressMapper.toDTO(updatedAddress);
+    }
+
+    @Override
+    public void delete(Long addressId) {
+        Address address = addressService.findById(addressId);
+        addressValidator.validateOnUpdateAndDelete(address);
+        addressService.delete(address);
     }
 }

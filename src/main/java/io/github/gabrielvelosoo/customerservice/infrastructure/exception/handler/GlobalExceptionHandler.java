@@ -1,5 +1,6 @@
 package io.github.gabrielvelosoo.customerservice.infrastructure.exception.handler;
 
+import io.github.gabrielvelosoo.customerservice.infrastructure.exception.BusinessRuleException;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.KeycloakException;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.RecordNotFoundException;
@@ -70,6 +71,20 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 status,
                 "An error occurred while processing Keycloak operation",
+                timestamp
+        );
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessRuleException(BusinessRuleException e) {
+        logger.error("Business rule error", e);
+        int status = HttpStatus.FORBIDDEN.value();
+        String message = e.getMessage();
+        LocalDateTime timestamp = LocalDateTime.now();
+        ErrorResponse errorResponse = new ErrorResponse(
+                status,
+                message,
                 timestamp
         );
         return ResponseEntity.status(status).body(errorResponse);
