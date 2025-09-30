@@ -6,6 +6,7 @@ import io.github.gabrielvelosoo.customerservice.application.dto.customer.Custome
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerUpdateDTO;
 import io.github.gabrielvelosoo.customerservice.application.usecase.customer.CustomerUseCase;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,10 +47,10 @@ class CustomerControllerTest {
                 .build();
 
         customerRequestDTO = new CustomerRequestDTO(
-                "Gabriel",
-                "Veloso",
-                "abcd@example.com",
-                "Test@123",
+                "unit",
+                "test",
+                "test@example.com",
+                "test123",
                 "85656417085",
                 "76964604",
                 LocalDate.of(1990, 1, 1)
@@ -57,69 +58,81 @@ class CustomerControllerTest {
 
         customerResponseDTO = new CustomerResponseDTO(
                 1L,
-                "Gabriel",
-                "Veloso",
-                "abcd@example.com",
+                "unit",
+                "test",
+                "test@example.com",
                 "85656417085",
                 "76964604",
                 LocalDate.of(1990, 1, 1)
         );
 
         customerUpdateDTO = new CustomerUpdateDTO(
-                "Guilherme",
-                "Veloso",
-                "83303677034",
-                LocalDate.of(2007, 5, 22)
+                "test",
+                "unit",
+                "27214319004",
+                LocalDate.of(1990, 1, 1)
         );
     }
 
-    @Test
-    void shouldCreateCustomerSuccessfully() throws Exception {
-        when(customerUseCase.create(customerRequestDTO)).thenReturn(customerResponseDTO);
+    @Nested
+    class CreateTests {
 
-        mockMvc.perform(post("/api/v1/customers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customerRequestDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(header().exists("Location"))
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("Gabriel"))
-                .andExpect(jsonPath("$.lastName").value("Veloso"));
+        @Test
+        void shouldCreateCustomerSuccessfully() throws Exception {
+            when(customerUseCase.create(customerRequestDTO)).thenReturn(customerResponseDTO);
 
-        verify(customerUseCase, times(1)).create(customerRequestDTO);
+            mockMvc.perform(post("/api/v1/customers")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(customerRequestDTO)))
+                    .andExpect(status().isCreated())
+                    .andExpect(header().exists("Location"))
+                    .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.name").value("unit"))
+                    .andExpect(jsonPath("$.lastName").value("test"));
+
+            verify(customerUseCase, times(1)).create(customerRequestDTO);
+        }
     }
 
-    @Test
-    void shouldEditCustomerSuccessfully() throws Exception {
-        CustomerResponseDTO updatedDTO = new CustomerResponseDTO(
-                1L,
-                "Guilherme",
-                "Veloso",
-                "abcd@example.com",
-                "83303677034",
-                "76964604",
-                LocalDate.of(2007, 5, 22)
-        );
-        when(customerUseCase.edit(1L, customerUpdateDTO)).thenReturn(updatedDTO);
+    @Nested
+    class EditTests {
 
-        mockMvc.perform(put("/api/v1/customers/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customerUpdateDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("Guilherme"))
-                .andExpect(jsonPath("$.lastName").value("Veloso"));
+        @Test
+        void shouldEditCustomerSuccessfully() throws Exception {
+            CustomerResponseDTO updatedDTO = new CustomerResponseDTO(
+                    1L,
+                    "update",
+                    "test",
+                    "update@example.com",
+                    "83303677034",
+                    "76964604",
+                    LocalDate.of(2007, 5, 22)
+            );
+            when(customerUseCase.edit(1L, customerUpdateDTO)).thenReturn(updatedDTO);
 
-        verify(customerUseCase, times(1)).edit(1L, customerUpdateDTO);
+            mockMvc.perform(put("/api/v1/customers/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(customerUpdateDTO)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.name").value("update"))
+                    .andExpect(jsonPath("$.lastName").value("test"));
+
+            verify(customerUseCase, times(1)).edit(1L, customerUpdateDTO);
+        }
     }
 
-    @Test
-    void shouldDeleteCustomerSuccessfully() throws Exception {
-        doNothing().when(customerUseCase).delete(1L);
+    @Nested
+    class DeleteTests {
 
-        mockMvc.perform(delete("/api/v1/customers/1"))
-                .andExpect(status().isNoContent());
+        @Test
+        void shouldDeleteCustomerSuccessfully() throws Exception {
+            doNothing().when(customerUseCase).delete(1L);
 
-        verify(customerUseCase, times(1)).delete(1L);
+            mockMvc.perform(delete("/api/v1/customers/1"))
+                    .andExpect(status().isNoContent());
+
+            verify(customerUseCase, times(1)).delete(1L);
+        }
     }
 }

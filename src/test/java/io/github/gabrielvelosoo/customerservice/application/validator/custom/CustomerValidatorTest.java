@@ -5,6 +5,7 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.DuplicateRecordException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,85 +36,95 @@ class CustomerValidatorTest {
     void setUp() {
         customer = new Customer(
                 1L,
-                "Gabriel",
-                "Veloso",
+                "unit",
+                "test",
                 UUID.randomUUID().toString(),
-                "abcd@example.com",
-                "85656417085",
-                "76964604",
-                LocalDate.of(2004, 4, 10)
+                "test@example.com",
+                "00000000000",
+                "00000000",
+                LocalDate.of(1990, 2, 23)
         );
 
         customerUpdateDTO = new CustomerUpdateDTO(
-                "Gabriel",
-                "Pinheiro",
-                "12345678900",
-                LocalDate.of(1995, 5, 20)
+                "test",
+                "unit",
+                "00000000000",
+                LocalDate.of(1990, 1, 1)
         );
     }
 
-    @Test
-    void shouldThrowExceptionWhenEmailAlreadyExistsOnCreate() {
-        when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+    @Nested
+    class ValidateOnCreateTests {
 
-        DuplicateRecordException e = assertThrows(
-                DuplicateRecordException.class,
-                () -> customerValidator.validateOnCreate(customer)
-        );
+        @Test
+        void shouldThrowExceptionWhenEmailAlreadyExistsOnCreate() {
+            when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
-        assertEquals("There is already an account registered with this email", e.getMessage());
+            DuplicateRecordException e = assertThrows(
+                    DuplicateRecordException.class,
+                    () -> customerValidator.validateOnCreate(customer)
+            );
 
-        verify(customerRepository, times(1)).findByEmail(customer.getEmail());
-        verify(customerRepository, never()).findByCpf(anyString());
+            assertEquals("There is already an account registered with this email", e.getMessage());
+
+            verify(customerRepository, times(1)).findByEmail(customer.getEmail());
+            verify(customerRepository, never()).findByCpf(anyString());
+        }
+
+        @Test
+        void shouldThrowExceptionWhenCpfAlreadyExistsOnCreate() {
+            when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
+            when(customerRepository.findByCpf(customer.getCpf())).thenReturn(Optional.of(customer));
+
+            DuplicateRecordException e = assertThrows(
+                    DuplicateRecordException.class,
+                    () -> customerValidator.validateOnCreate(customer)
+            );
+
+            assertEquals("There is already an account registered with this CPF", e.getMessage());
+
+            verify(customerRepository, times(1)).findByEmail(customer.getEmail());
+            verify(customerRepository, times(1)).findByCpf(customer.getCpf());
+        }
+
+        @Test
+        void shouldPassValidationOnCreateWhenEmailAndCpfAreUnique() {
+            when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
+            when(customerRepository.findByCpf(customer.getCpf())).thenReturn(Optional.empty());
+
+            customerValidator.validateOnCreate(customer);
+
+            verify(customerRepository, times(1)).findByEmail(customer.getEmail());
+            verify(customerRepository, times(1)).findByCpf(customer.getCpf());
+        }
+
+
     }
 
-    @Test
-    void shouldThrowExceptionWhenCpfAlreadyExistsOnCreate() {
-        when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
-        when(customerRepository.findByCpf(customer.getCpf())).thenReturn(Optional.of(customer));
+    @Nested
+    class ValidateOnUpdateTests {
 
-        DuplicateRecordException e = assertThrows(
-                DuplicateRecordException.class,
-                () -> customerValidator.validateOnCreate(customer)
-        );
+        @Test
+        void shouldThrowExceptionWhenCpfAlreadyExistsOnUpdate() {
+            when(customerRepository.findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId())).thenReturn(Optional.of(customer));
 
-        assertEquals("There is already an account registered with this CPF", e.getMessage());
+            DuplicateRecordException e = assertThrows(
+                    DuplicateRecordException.class,
+                    () -> customerValidator.validateOnUpdate(customer.getId(), customerUpdateDTO)
+            );
 
-        verify(customerRepository, times(1)).findByEmail(customer.getEmail());
-        verify(customerRepository, times(1)).findByCpf(customer.getCpf());
-    }
+            assertEquals("There is already an account registered with this CPF", e.getMessage());
 
-    @Test
-    void shouldPassValidationOnCreateWhenEmailAndCpfAreUnique() {
-        when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
-        when(customerRepository.findByCpf(customer.getCpf())).thenReturn(Optional.empty());
+            verify(customerRepository, times(1)).findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId());
+        }
 
-        customerValidator.validateOnCreate(customer);
+        @Test
+        void shouldPassValidationOnUpdateWhenCpfIsUnique() {
+            when(customerRepository.findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId())).thenReturn(Optional.empty());
 
-        verify(customerRepository, times(1)).findByEmail(customer.getEmail());
-        verify(customerRepository, times(1)).findByCpf(customer.getCpf());
-    }
+            customerValidator.validateOnUpdate(customer.getId(), customerUpdateDTO);
 
-    @Test
-    void shouldThrowExceptionWhenCpfAlreadyExistsOnUpdate() {
-        when(customerRepository.findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId())).thenReturn(Optional.of(customer));
-
-        DuplicateRecordException e = assertThrows(
-                DuplicateRecordException.class,
-                () -> customerValidator.validateOnUpdate(customer.getId(), customerUpdateDTO)
-        );
-
-        assertEquals("There is already an account registered with this CPF", e.getMessage());
-
-        verify(customerRepository, times(1)).findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId());
-    }
-
-    @Test
-    void shouldPassValidationOnUpdateWhenCpfIsUnique() {
-        when(customerRepository.findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId())).thenReturn(Optional.empty());
-
-        customerValidator.validateOnUpdate(customer.getId(), customerUpdateDTO);
-
-        verify(customerRepository, times(1)).findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId());
+            verify(customerRepository, times(1)).findByCpfAndNotId(customerUpdateDTO.cpf(), customer.getId());
+        }
     }
 }

@@ -4,6 +4,7 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.repository.CustomerRepository;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.RecordNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,72 +32,88 @@ class CustomerServiceImplTest {
     @BeforeEach
     void setUp() {
         customer = new Customer(
-                10L,
-                "XXXXX",
-                "YYYYY",
+                1L,
+                "test1",
+                "unit",
                 UUID.randomUUID().toString(),
-                "abcd@example.com",
+                "test1@example.com",
                 "00000000000",
                 "00000000",
                 LocalDate.of(1990, 2, 23)
         );
     }
 
-    @Test
-    void shouldCreateCustomerSuccessfully() {
-        when(customerRepository.save(customer)).thenReturn(customer);
+    @Nested
+    class CreateTests {
 
-        Customer savedCustomer = customerService.save(customer);
+        @Test
+        void shouldCreateCustomerSuccessfully() {
+            when(customerRepository.save(customer)).thenReturn(customer);
 
-        assertNotNull(savedCustomer);
-        assertEquals(10L, savedCustomer.getId());
-        assertEquals("XXXXX", savedCustomer.getName());
+            Customer savedCustomer = customerService.save(customer);
 
-        verify(customerRepository, times(1)).save(customer);
+            assertNotNull(savedCustomer);
+            assertEquals(1L, savedCustomer.getId());
+            assertEquals("test1", savedCustomer.getName());
+
+            verify(customerRepository, times(1)).save(customer);
+        }
     }
 
-    @Test
-    void shouldFindCustomerByIdSuccessfully() {
-        when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
+    @Nested
+    class FindByIdTests {
 
-        Customer found = customerService.findById(10L);
+        @Test
+        void shouldFindCustomerByIdSuccessfully() {
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
 
-        assertNotNull(found);
-        assertEquals(10L, found.getId());
+            Customer foundCustomer = customerService.findById(1L);
 
-        verify(customerRepository, times(1)).findById(10L);
+            assertNotNull(foundCustomer);
+            assertEquals(1L, foundCustomer.getId());
+
+            verify(customerRepository, times(1)).findById(1L);
+        }
+
+        @Test
+        void shouldThrowExceptionWhenCustomerDoesNotExist() {
+            when(customerRepository.findById(1L)).thenReturn(Optional.empty());
+
+            RecordNotFoundException e = assertThrows(
+                    RecordNotFoundException.class,
+                    () -> customerService.findById(1L)
+            );
+
+            assertEquals("Customer not found: 1", e.getMessage());
+
+            verify(customerRepository, times(1)).findById(1L);
+        }
     }
 
-    @Test
-    void shouldThrowExceptionWhenCustomerDoesNotExist() {
-        when(customerRepository.findById(10L)).thenReturn(Optional.empty());
+    @Nested
+    class EditTests {
 
-        RecordNotFoundException e = assertThrows(
-                RecordNotFoundException.class,
-                () -> customerService.findById(10L)
-        );
+        @Test
+        void shouldSaveEditedCustomerSuccessfully() {
+            when(customerRepository.save(customer)).thenReturn(customer);
 
-        assertEquals("Customer not found: 10", e.getMessage());
+            Customer editedCustomer = customerService.edit(customer);
 
-        verify(customerRepository, times(1)).findById(10L);
+            assertNotNull(editedCustomer);
+            assertEquals("test1", editedCustomer.getName());
+
+            verify(customerRepository, times(1)).save(customer);
+        }
     }
 
-    @Test
-    void shouldSaveEditedCustomerSuccessfully() {
-        when(customerRepository.save(customer)).thenReturn(customer);
+    @Nested
+    class DeleteTests {
 
-        Customer editedCustomer = customerService.edit(customer);
-
-        assertNotNull(editedCustomer);
-        assertEquals("XXXXX", editedCustomer.getName());
-
-        verify(customerRepository, times(1)).save(customer);
-    }
-
-    @Test
-    void shouldDeleteCustomerUsingRepositorySuccessfully() {
-        doNothing().when(customerRepository).delete(customer);
-        customerService.delete(customer);
-        verify(customerRepository, times(1)).delete(customer);
+        @Test
+        void shouldDeleteCustomerUsingRepositorySuccessfully() {
+            doNothing().when(customerRepository).delete(customer);
+            customerService.delete(customer);
+            verify(customerRepository, times(1)).delete(customer);
+        }
     }
 }

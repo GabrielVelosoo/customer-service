@@ -62,4 +62,21 @@ public class Address implements Serializable {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Address() {}
+
+    public Address(Long id, String contactName, String contactLastName, String contactPhone, String address, String number, String neighborhood, String city, String state, String cep, String complement, Customer customer) {
+        this.id = id;
+        this.contactName = contactName;
+        this.contactLastName = contactLastName;
+        this.contactPhone = contactPhone;
+        this.address = address;
+        this.number = number;
+        this.neighborhood = neighborhood;
+        this.city = city;
+        this.state = state;
+        this.cep = cep;
+        this.complement = complement;
+        this.customer = customer;
+    }
 }

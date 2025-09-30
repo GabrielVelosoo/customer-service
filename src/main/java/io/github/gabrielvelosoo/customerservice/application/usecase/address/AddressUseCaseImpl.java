@@ -28,7 +28,7 @@ public class AddressUseCaseImpl implements AddressUseCase {
         Customer customer = authService.getLoggedCustomer();
         address.setCustomer(customer);
         addressValidator.validateOnCreate(address);
-        Address savedAddress = addressService.create(address);
+        Address savedAddress = addressService.save(address);
         return addressMapper.toDTO(savedAddress);
     }
 

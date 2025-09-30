@@ -13,6 +13,7 @@ import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
 import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.producer.CustomerProducer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -52,8 +53,8 @@ class CustomerUseCaseImplTest {
     @BeforeEach
     void setUp() {
         customerRequestDTO = new CustomerRequestDTO(
-                "XXXXX",
-                "YYYYY",
+                "unit",
+                "test",
                 "test@example.com",
                 "test123",
                 "00000000000",
@@ -62,9 +63,9 @@ class CustomerUseCaseImplTest {
         );
 
         customer = new Customer(
-                10L,
-                "XXXXX",
-                "YYYYY",
+                1L,
+                "unit",
+                "test",
                 UUID.randomUUID().toString(),
                 "test@example.com",
                 "00000000000",
@@ -83,104 +84,115 @@ class CustomerUseCaseImplTest {
         );
 
         customerUpdateDTO = new CustomerUpdateDTO(
-                "YYYYY",
-                "XXXXX",
+                "test",
+                "unit",
                 "00000000000",
                 LocalDate.of(1990, 1, 1)
         );
     }
 
-    @Test
-    void shouldCreateCustomerAndPublishEventSuccessfully() {
-        when(customerMapper.toEntity(customerRequestDTO)).thenReturn(customer);
-        when(customerService.save(customer)).thenReturn(customer);
-        when(customerMapper.toDTO(customer)).thenReturn(customerResponseDTO);
+    @Nested
+    class CreateTests {
 
-        CustomerResponseDTO result = customerUseCase.create(customerRequestDTO);
+        @Test
+        void shouldCreateCustomerAndPublishEventSuccessfully() {
+            when(customerMapper.toEntity(customerRequestDTO)).thenReturn(customer);
+            when(customerService.save(customer)).thenReturn(customer);
+            when(customerMapper.toDTO(customer)).thenReturn(customerResponseDTO);
 
-        verify(customerValidator, times(1)).validateOnCreate(customer);
-        verify(customerService, times(1)).save(customer);
-        verify(customerMapper, times(1)).toEntity(customerRequestDTO);
-        verify(customerMapper, times(1)).toDTO(customer);
+            CustomerResponseDTO result = customerUseCase.create(customerRequestDTO);
 
-        ArgumentCaptor<CustomerCreatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerCreatedEvent.class);
-        verify(customerProducer, times(1)).publishCustomerCreated(eventCaptor.capture());
+            verify(customerValidator, times(1)).validateOnCreate(customer);
+            verify(customerService, times(1)).save(customer);
+            verify(customerMapper, times(1)).toEntity(customerRequestDTO);
+            verify(customerMapper, times(1)).toDTO(customer);
 
-        CustomerCreatedEvent publishedEvent = eventCaptor.getValue();
-        assertEquals(customer.getId(), publishedEvent.customerId());
-        assertEquals(customer.getName(), publishedEvent.name());
-        assertEquals(customer.getLastName(), publishedEvent.lastName());
-        assertEquals(customer.getEmail(), publishedEvent.email());
+            ArgumentCaptor<CustomerCreatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerCreatedEvent.class);
+            verify(customerProducer, times(1)).publishCustomerCreated(eventCaptor.capture());
 
-        assertEquals(customerResponseDTO.id(), result.id());
-        assertEquals(customerResponseDTO.name(), result.name());
-        assertEquals(customerResponseDTO.lastName(), result.lastName());
-        assertEquals(customerResponseDTO.email(), result.email());
-        assertEquals(customerResponseDTO.cpf(), result.cpf());
-        assertEquals(customerResponseDTO.cep(), result.cep());
+            CustomerCreatedEvent publishedEvent = eventCaptor.getValue();
+            assertEquals(customer.getId(), publishedEvent.customerId());
+            assertEquals(customer.getName(), publishedEvent.name());
+            assertEquals(customer.getLastName(), publishedEvent.lastName());
+            assertEquals(customer.getEmail(), publishedEvent.email());
+
+            assertEquals(customerResponseDTO.id(), result.id());
+            assertEquals(customerResponseDTO.name(), result.name());
+            assertEquals(customerResponseDTO.lastName(), result.lastName());
+            assertEquals(customerResponseDTO.email(), result.email());
+            assertEquals(customerResponseDTO.cpf(), result.cpf());
+            assertEquals(customerResponseDTO.cep(), result.cep());
+        }
     }
 
-    @Test
-    void shouldEditCustomerAndPublishEventSuccessfully() {
-        when(customerService.findById(customer.getId())).thenReturn(customer);
-        Customer editedCustomer = new Customer(
-                customer.getId(),
-                customerUpdateDTO.name(),
-                customerUpdateDTO.lastName(),
-                customer.getKeycloakUserId(),
-                customer.getEmail(),
-                customerUpdateDTO.cpf(),
-                customer.getCep(),
-                customer.getBirthDate()
-        );
-        when(customerService.edit(customer)).thenReturn(editedCustomer);
+    @Nested
+    class EditTests {
 
-        CustomerResponseDTO updatedDTO = new CustomerResponseDTO(
-                editedCustomer.getId(),
-                editedCustomer.getName(),
-                editedCustomer.getLastName(),
-                editedCustomer.getEmail(),
-                editedCustomer.getCpf(),
-                editedCustomer.getCep(),
-                editedCustomer.getBirthDate()
-        );
-        when(customerMapper.toDTO(editedCustomer)).thenReturn(updatedDTO);
+        @Test
+        void shouldEditCustomerAndPublishEventSuccessfully() {
+            when(customerService.findById(customer.getId())).thenReturn(customer);
+            Customer editedCustomer = new Customer(
+                    customer.getId(),
+                    customerUpdateDTO.name(),
+                    customerUpdateDTO.lastName(),
+                    customer.getKeycloakUserId(),
+                    customer.getEmail(),
+                    customerUpdateDTO.cpf(),
+                    customer.getCep(),
+                    customer.getBirthDate()
+            );
+            when(customerService.edit(customer)).thenReturn(editedCustomer);
 
-        CustomerResponseDTO result = customerUseCase.edit(customer.getId(), customerUpdateDTO);
+            CustomerResponseDTO updatedDTO = new CustomerResponseDTO(
+                    editedCustomer.getId(),
+                    editedCustomer.getName(),
+                    editedCustomer.getLastName(),
+                    editedCustomer.getEmail(),
+                    editedCustomer.getCpf(),
+                    editedCustomer.getCep(),
+                    editedCustomer.getBirthDate()
+            );
+            when(customerMapper.toDTO(editedCustomer)).thenReturn(updatedDTO);
 
-        verify(customerService, times(1)).findById(customer.getId());
-        verify(customerValidator, times(1)).validateOnUpdate(customer.getId(), customerUpdateDTO);
-        verify(customerMapper, times(1)).edit(customer, customerUpdateDTO);
-        verify(customerService, times(1)).edit(customer);
-        verify(customerMapper, times(1)).toDTO(editedCustomer);
+            CustomerResponseDTO result = customerUseCase.edit(customer.getId(), customerUpdateDTO);
 
-        ArgumentCaptor<CustomerUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerUpdatedEvent.class);
-        verify(customerProducer, times(1)).publishCustomerUpdated(eventCaptor.capture());
+            verify(customerService, times(1)).findById(customer.getId());
+            verify(customerValidator, times(1)).validateOnUpdate(customer.getId(), customerUpdateDTO);
+            verify(customerMapper, times(1)).edit(customer, customerUpdateDTO);
+            verify(customerService, times(1)).edit(customer);
+            verify(customerMapper, times(1)).toDTO(editedCustomer);
 
-        CustomerUpdatedEvent publishedEvent = eventCaptor.getValue();
-        assertEquals(customer.getId(), publishedEvent.customerId());
-        assertEquals(customerUpdateDTO.name(), publishedEvent.name());
-        assertEquals(customerUpdateDTO.lastName(), publishedEvent.lastName());
+            ArgumentCaptor<CustomerUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerUpdatedEvent.class);
+            verify(customerProducer, times(1)).publishCustomerUpdated(eventCaptor.capture());
 
-        assertEquals(updatedDTO.id(), result.id());
-        assertEquals(customerUpdateDTO.name(), result.name());
-        assertEquals(customerUpdateDTO.lastName(), result.lastName());
-        assertEquals(customerUpdateDTO.cpf(), result.cpf());
+            CustomerUpdatedEvent publishedEvent = eventCaptor.getValue();
+            assertEquals(customer.getId(), publishedEvent.customerId());
+            assertEquals(customerUpdateDTO.name(), publishedEvent.name());
+            assertEquals(customerUpdateDTO.lastName(), publishedEvent.lastName());
+
+            assertEquals(updatedDTO.id(), result.id());
+            assertEquals(customerUpdateDTO.name(), result.name());
+            assertEquals(customerUpdateDTO.lastName(), result.lastName());
+            assertEquals(customerUpdateDTO.cpf(), result.cpf());
+        }
     }
 
-    @Test
-    void shouldDeleteCustomerAndPublishEventSuccessfully() {
-        when(customerService.findById(customer.getId())).thenReturn(customer);
+    @Nested
+    class DeleteTests {
+        @Test
+        void shouldDeleteCustomerAndPublishEventSuccessfully() {
+            when(customerService.findById(customer.getId())).thenReturn(customer);
 
-        customerUseCase.delete(customer.getId());
+            customerUseCase.delete(customer.getId());
 
-        verify(customerService, times(1)).findById(customer.getId());
-        verify(customerService, times(1)).delete(customer);
+            verify(customerService, times(1)).findById(customer.getId());
+            verify(customerService, times(1)).delete(customer);
 
-        ArgumentCaptor<CustomerDeletedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerDeletedEvent.class);
-        verify(customerProducer, times(1)).publishCustomerDeleted(eventCaptor.capture());
+            ArgumentCaptor<CustomerDeletedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerDeletedEvent.class);
+            verify(customerProducer, times(1)).publishCustomerDeleted(eventCaptor.capture());
 
-        CustomerDeletedEvent publishedEvent = eventCaptor.getValue();
-        assertEquals(customer.getId(), publishedEvent.customerId());
+            CustomerDeletedEvent publishedEvent = eventCaptor.getValue();
+            assertEquals(customer.getId(), publishedEvent.customerId());
+        }
     }
 }
