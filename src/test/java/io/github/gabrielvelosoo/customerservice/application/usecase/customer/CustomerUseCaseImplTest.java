@@ -1,4 +1,4 @@
-package io.github.gabrielvelosoo.customerservice.application.usecase;
+package io.github.gabrielvelosoo.customerservice.application.usecase.customer;
 
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerRequestDTO;
 import io.github.gabrielvelosoo.customerservice.application.dto.customer.CustomerResponseDTO;
@@ -7,7 +7,6 @@ import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerCr
 import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerDeletedEvent;
 import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerUpdatedEvent;
 import io.github.gabrielvelosoo.customerservice.application.mapper.CustomerMapper;
-import io.github.gabrielvelosoo.customerservice.application.usecase.customer.CustomerUseCaseImpl;
 import io.github.gabrielvelosoo.customerservice.application.validator.custom.CustomerValidator;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
 import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
