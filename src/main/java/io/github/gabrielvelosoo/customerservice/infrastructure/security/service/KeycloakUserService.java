@@ -30,7 +30,7 @@ public class KeycloakUserService implements IdentityProvider {
 
     @Override
     public String createUser(String email, String password, String name, String lastName) {
-        logger.info("Creating Keycloak user with email='{}'", email);
+        logger.info("Creating Keycloak user with e-mail: '{}'", email);
         try {
             if(userExists(email)) {
                 logger.error("User '{}' already exists", email);
@@ -46,24 +46,24 @@ public class KeycloakUserService implements IdentityProvider {
 
             Response response = keycloak.realm(realm).users().create(user);
             if(response.getStatus() != 201) {
-                logger.error("Failed to create Keycloak user '{}' (status='{}')", email, response.getStatus());
+                logger.error("Failed to create Keycloak user: '{}' (status='{}')", email, response.getStatus());
                 throw new RuntimeException("Error creating user in Keycloak: " + response.getStatus());
             }
 
             String userId = CreatedResponseUtil.getCreatedId(response);
-            logger.info("Keycloak user '{}' created successfully with id='{}'", email, userId);
+            logger.info("Keycloak user '{}' created successfully with id: '{}'", email, userId);
 
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setTemporary(false);
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setValue(password);
             keycloak.realm(realm).users().get(userId).resetPassword(credential);
-            logger.info("Password set for user '{}'", userId);
+            logger.info("Password set for user: '{}'", userId);
 
             assignRole(userId, "USER");
             return userId;
         } catch(Exception e) {
-            logger.error("Error creating Keycloak user '{}'", email, e);
+            logger.error("Error creating Keycloak user: '{}'", email, e);
             throw new KeycloakException("Failed to create user in Keycloak: " + e.getMessage(), e);
         }
     }
@@ -102,14 +102,14 @@ public class KeycloakUserService implements IdentityProvider {
             userResource.update(user);
             logger.info("Keycloak user '{}' updated successfully", userId);
         } catch(Exception e) {
-            logger.error("Error editing Keycloak user '{}'", userId, e);
+            logger.error("Error editing Keycloak user: '{}'", userId, e);
             throw new KeycloakException("Failed to update user in Keycloak: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void deleteUser(String userId) {
-        logger.info("Deleting Keycloak user '{}'", userId);
+        logger.info("Deleting Keycloak user: '{}'", userId);
         try {
             keycloak.realm(realm)
                     .users()
@@ -117,7 +117,7 @@ public class KeycloakUserService implements IdentityProvider {
                     .remove();
             logger.info("Keycloak user '{}' deleted successfully", userId);
         } catch(Exception e) {
-            logger.error("Error deleting Keycloak user '{}'", userId, e);
+            logger.error("Error deleting Keycloak user: '{}'", userId, e);
             throw new KeycloakException("Failed to delete user in Keycloak: " + userId, e);
         }
     }

@@ -7,6 +7,5 @@ public interface CustomerService {
     Customer save(Customer customer);
     Customer findById(Long id);
     Customer findByKeycloakUserId(String keycloakUserId);
-    Customer edit(Customer customer);
     void delete(Customer customer);
 }

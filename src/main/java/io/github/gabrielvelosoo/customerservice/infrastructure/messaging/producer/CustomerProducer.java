@@ -33,7 +33,7 @@ public class CustomerProducer {
                 RabbitConfig.UPDATE_KEY,
                 event
         );
-        logger.info("Published CustomerUpdatedEvent  for id '{}'", event.customerId());
+        logger.info("Published CustomerUpdatedEvent for id '{}'", event.customerId());
     }
 
     public void publishCustomerDeleted(CustomerDeletedEvent event) {
@@ -42,6 +42,6 @@ public class CustomerProducer {
                 RabbitConfig.DELETE_KEY,
                 event
         );
-        logger.info("Published CustomerDeletedEvent  for id '{}'", event.customerId());
+        logger.info("Published CustomerDeletedEvent for id '{}'", event.customerId());
     }
 }
