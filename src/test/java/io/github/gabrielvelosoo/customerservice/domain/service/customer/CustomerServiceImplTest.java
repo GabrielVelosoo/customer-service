@@ -97,7 +97,7 @@ class CustomerServiceImplTest {
         void shouldSaveEditedCustomerSuccessfully() {
             when(customerRepository.save(customer)).thenReturn(customer);
 
-            Customer editedCustomer = customerService.edit(customer);
+            Customer editedCustomer = customerService.save(customer);
 
             assertNotNull(editedCustomer);
             assertEquals("test1", editedCustomer.getName());

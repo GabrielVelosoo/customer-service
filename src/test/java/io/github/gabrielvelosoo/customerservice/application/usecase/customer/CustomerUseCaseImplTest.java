@@ -140,7 +140,7 @@ class CustomerUseCaseImplTest {
                     customer.getCep(),
                     customer.getBirthDate()
             );
-            when(customerService.edit(customer)).thenReturn(editedCustomer);
+            when(customerService.save(customer)).thenReturn(editedCustomer);
 
             CustomerResponseDTO updatedDTO = new CustomerResponseDTO(
                     editedCustomer.getId(),
@@ -158,7 +158,7 @@ class CustomerUseCaseImplTest {
             verify(customerService, times(1)).findById(customer.getId());
             verify(customerValidator, times(1)).validateOnUpdate(customer.getId(), customerUpdateDTO);
             verify(customerMapper, times(1)).edit(customer, customerUpdateDTO);
-            verify(customerService, times(1)).edit(customer);
+            verify(customerService, times(1)).save(customer);
             verify(customerMapper, times(1)).toDTO(editedCustomer);
 
             ArgumentCaptor<CustomerUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(CustomerUpdatedEvent.class);

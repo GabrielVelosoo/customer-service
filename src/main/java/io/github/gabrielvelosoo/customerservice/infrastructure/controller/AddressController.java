@@ -6,6 +6,7 @@ import io.github.gabrielvelosoo.customerservice.application.usecase.address.Addr
 import io.github.gabrielvelosoo.customerservice.application.validator.group.ValidationOrder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class AddressController implements GenericController {
     private final AddressUseCase addressUseCase;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<AddressResponseDTO> create(@RequestBody @Validated(ValidationOrder.class) AddressRequestDTO addressRequestDTO) {
         AddressResponseDTO addressResponseDTO = addressUseCase.create(addressRequestDTO);
         URI location = generateHeaderLocation(addressResponseDTO.id());
@@ -27,12 +29,14 @@ public class AddressController implements GenericController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<AddressResponseDTO>> getAddressesLoggedCustomer() {
         List<AddressResponseDTO> addressResponseDTOs = addressUseCase.getAddressesLoggedCustomer();
         return ResponseEntity.ok(addressResponseDTOs);
     }
 
     @PutMapping(value = "/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<AddressResponseDTO> edit(@PathVariable(name = "id") Long addressId,
                                                    @RequestBody @Validated(ValidationOrder.class) AddressRequestDTO addressRequestDTO
     ) {
@@ -41,6 +45,7 @@ public class AddressController implements GenericController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable(name = "id") Long addressId) {
         addressUseCase.delete(addressId);
         return ResponseEntity.noContent().build();
