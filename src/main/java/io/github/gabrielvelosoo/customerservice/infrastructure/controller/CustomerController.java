@@ -6,6 +6,7 @@ import io.github.gabrielvelosoo.customerservice.application.dto.customer.Custome
 import io.github.gabrielvelosoo.customerservice.application.usecase.customer.CustomerUseCase;
 import io.github.gabrielvelosoo.customerservice.application.validator.group.ValidationOrder;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ErrorResponse;
+import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ValidationErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,14 +34,36 @@ public class CustomerController implements GenericController {
     private final CustomerUseCase customerUseCase;
 
     @PostMapping
-    @Operation(summary = "Create", description = "Create a new customer")
+    @Operation(
+            summary = "Create a new customer",
+            description = "Registers a new customer ensuring unique e-mail and CPF. Publishes an event to create the corresponding user in the authentication service. Returns the created customer data and the resource location."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Customer created successfully", content = {
-                    @Content(schema = @Schema(implementation = CustomerResponseDTO.class))
-            }),
-            @ApiResponse(responseCode = "409", description = "Validation error, e-mail or CPF already registered with another account", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class))
-            })
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Customer created successfully. Returns the created customer data and a Location header pointing to the new resource.",
+                    content = @Content(schema = @Schema(implementation = CustomerResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict — the e-mail or CPF provided is already registered with another account.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Unprocessable Entity — validation failed for one or more fields in the request body.",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — an unexpected error occurred while interacting with Keycloak, such as during user creation, role assignment, or token validation. Contact the development team if the problem persists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
     })
     public ResponseEntity<CustomerResponseDTO> create(@RequestBody @Validated(ValidationOrder.class) CustomerRequestDTO customerRequestDTO) {
         logger.info("Received request to create new customer with e-mail: '{}'", customerRequestDTO.email());
@@ -52,6 +75,42 @@ public class CustomerController implements GenericController {
 
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Operation(
+            summary = "Edit a customer",
+            description = "Edit a customer. Publishes an event to edit the corresponding user in the authentication service. Returns the edited customer data."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Customer updated successfully. Returns the updated customer data.",
+                    content = @Content(schema = @Schema(implementation = CustomerResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized — invalid or expired access token.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found — no customer exists with the provided ID.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Unprocessable Entity — validation failed for one or more fields in the request body.",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — an unexpected error occurred while interacting with Keycloak, such as during user creation, role assignment, or token validation. Contact the development team if the problem persists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
     public ResponseEntity<CustomerResponseDTO> edit(@PathVariable(name = "id") Long customerId,
                                                     @RequestBody @Validated(ValidationOrder.class) CustomerUpdateDTO customerUpdateDTO
     ) {
@@ -63,6 +122,36 @@ public class CustomerController implements GenericController {
 
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Operation(
+            summary = "Delete a customer",
+            description = "Delete a customer. Publishes an event to delete the corresponding user in the authentication service."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Customer deleted successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized — invalid or expired access token.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found — no customer exists with the provided ID.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — an unexpected error occurred while interacting with Keycloak, such as during user creation, role assignment, or token validation. Contact the development team if the problem persists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
     public ResponseEntity<Void> delete(@PathVariable(name = "id") Long customerId) {
         logger.info("Received request to delete customer id: '{}'", customerId);
         customerUseCase.delete(customerId);
