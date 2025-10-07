@@ -9,6 +9,5 @@ public interface AddressService {
     Address save(Address address);
     Address findById(Long addressId);
     List<Address> getAddressesLoggedCustomer(Long customerId);
-    Address edit(Address address);
     void delete(Address address);
 }

@@ -149,7 +149,7 @@ class AddressServiceImplTest {
         void shouldSaveEditedAddressSuccessfully() {
             when(addressRepository.save(address)).thenReturn(address);
 
-            Address editedAddress = addressService.edit(address);
+            Address editedAddress = addressService.save(address);
 
             assertNotNull(editedAddress);
             assertEquals("Gabriel", editedAddress.getContactName());

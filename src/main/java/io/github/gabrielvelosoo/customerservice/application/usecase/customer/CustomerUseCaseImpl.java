@@ -31,7 +31,8 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     @Override
     @Transactional
     public CustomerResponseDTO create(CustomerRequestDTO customerRequestDTO) {
-        logger.debug("Mapping CustomerRequestDTO to entity for e-mail: '{}'", customerRequestDTO.email());
+        logger.debug("Creating new customer with e-mail: '{}'", customerRequestDTO.email());
+        logger.debug("Mapping CustomerRequestDTO to Customer entity");
         Customer customer = customerMapper.toEntity(customerRequestDTO);
         logger.debug("Validating new customer data");
         customerValidator.validateOnCreate(customer);
@@ -52,15 +53,16 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
 
     @Override
     @Transactional
-    public CustomerResponseDTO edit(Long id, CustomerUpdateDTO customerUpdateDTO) {
-        logger.debug("Editing customer id: '{}'", id);
-        Customer customer = customerService.findById(id);
-        logger.debug("Validating update for customer id: '{}'", id);
-        customerValidator.validateOnUpdate(id, customerUpdateDTO);
+    public CustomerResponseDTO edit(Long customerId, CustomerUpdateDTO customerUpdateDTO) {
+        logger.debug("Editing customer with id: '{}'", customerId);
+        logger.debug("Searching for customer to edit with id: '{}'", customerId);
+        Customer customer = customerService.findById(customerId);
+        logger.debug("Validating update for customer id: '{}'", customerId);
+        customerValidator.validateOnUpdate(customerId, customerUpdateDTO);
         customerMapper.edit(customer, customerUpdateDTO);
         Customer editedCustomer = customerService.save(customer);
-        logger.info("Customer id '{}' edited successfully", id);
-        logger.debug("Publishing 'CustomerUpdatedEvent' for customer with id: '{}'", id);
+        logger.info("Customer id '{}' edited successfully", editedCustomer.getId());
+        logger.debug("Publishing 'CustomerUpdatedEvent' for customer with id: '{}'", customerId);
         customerProducer.publishCustomerUpdated(
                 new CustomerUpdatedEvent(
                         editedCustomer.getId(),
@@ -73,12 +75,13 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        logger.debug("Deleting customer id: '{}'", id);
-        Customer customer = customerService.findById(id);
+    public void delete(Long customerId) {
+        logger.debug("Deleting customer id: '{}'", customerId);
+        logger.debug("Searching for customer to delete with id: '{}'", customerId);
+        Customer customer = customerService.findById(customerId);
         customerService.delete(customer);
-        logger.info("Customer id '{}' deleted successfully", id);
-        logger.debug("Publishing 'CustomerDeletedEvent' for customer with id: '{}'", id);
+        logger.info("Customer id '{}' deleted successfully", customerId);
+        logger.debug("Publishing 'CustomerDeletedEvent' for customer with id: '{}'", customerId);
         customerProducer.publishCustomerDeleted(
                 new CustomerDeletedEvent(
                         customer.getId()

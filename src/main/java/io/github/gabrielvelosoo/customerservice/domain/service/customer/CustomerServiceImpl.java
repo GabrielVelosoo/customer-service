@@ -23,12 +23,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer findById(Long id) {
-        logger.debug("Searching for customer id: '{}'", id);
-        return customerRepository.findById(id)
+    public Customer findById(Long customerId) {
+        logger.debug("Searching for customer id: '{}'", customerId);
+        return customerRepository.findById(customerId)
                 .orElseThrow( () -> {
-                    logger.warn("Customer not found with id: '{}'", id);
-                    return new RecordNotFoundException("Customer not found: " + id);
+                    logger.warn("Customer not found with id: '{}'", customerId);
+                    return new RecordNotFoundException("Customer not found: " + customerId);
                 } );
     }
 

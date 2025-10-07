@@ -153,7 +153,7 @@ class AddressUseCaseImplTest {
         @Test
         void shouldEditAddressSuccessfully() {
             when(addressService.findById(1L)).thenReturn(address);
-            when(addressService.edit(address)).thenReturn(address);
+            when(addressService.save(address)).thenReturn(address);
             when(addressMapper.toDTO(address)).thenReturn(addressResponseDTO);
 
             AddressResponseDTO result = addressUseCase.edit(1L, addressRequestDTO);
@@ -164,7 +164,7 @@ class AddressUseCaseImplTest {
             verify(addressService, times(1)).findById(1L);
             verify(addressValidator, times(1)).validateOnUpdateAndDelete(address);
             verify(addressMapper, times(1)).edit(address, addressRequestDTO);
-            verify(addressService, times(1)).edit(address);
+            verify(addressService, times(1)).save(address);
             verify(addressMapper, times(1)).toDTO(address);
         }
     }

@@ -52,21 +52,21 @@ public class CustomerController implements GenericController {
 
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<CustomerResponseDTO> edit(@PathVariable(name = "id") Long id,
+    public ResponseEntity<CustomerResponseDTO> edit(@PathVariable(name = "id") Long customerId,
                                                     @RequestBody @Validated(ValidationOrder.class) CustomerUpdateDTO customerUpdateDTO
     ) {
-        logger.info("Received request to edit customer id: '{}'", id);
-        CustomerResponseDTO customerResponseDTO = customerUseCase.edit(id, customerUpdateDTO);
-        logger.info("Customer id '{}' updated successfully", id);
+        logger.info("Received request to edit customer id: '{}'", customerId);
+        CustomerResponseDTO customerResponseDTO = customerUseCase.edit(customerId, customerUpdateDTO);
+        logger.info("Customer id '{}' updated successfully", customerResponseDTO.id());
         return ResponseEntity.ok(customerResponseDTO);
     }
 
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id) {
-        logger.info("Received request to delete customer id: '{}'", id);
-        customerUseCase.delete(id);
-        logger.info("Customer id '{}' deleted successfully", id);
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long customerId) {
+        logger.info("Received request to delete customer id: '{}'", customerId);
+        customerUseCase.delete(customerId);
+        logger.info("Customer id '{}' deleted successfully", customerId);
         return ResponseEntity.noContent().build();
     }
 }
