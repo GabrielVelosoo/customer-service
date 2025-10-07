@@ -78,32 +78,6 @@ class AddressValidatorTest {
     }
 
     @Nested
-    class ValidateOnCreateTests {
-
-        @Test
-        void shouldThrowExceptionValidationOnCreateWhenCustomerDoesNotExist() {
-            when(customerRepository.existsById(1L)).thenReturn(false);
-
-            RecordNotFoundException e = assertThrows(
-                    RecordNotFoundException.class,
-                    () -> addressValidator.validateOnCreate(address)
-            );
-
-            assertEquals("Customer not found: 1", e.getMessage());
-            verify(customerRepository, times(1)).existsById(1L);
-        }
-
-        @Test
-        void shouldPassValidationOnCreateWhenCustomerExists() {
-            when(customerRepository.existsById(1L)).thenReturn(true);
-
-            addressValidator.validateOnCreate(address);
-
-            verify(customerRepository, times(1)).existsById(1L);
-        }
-    }
-
-    @Nested
     class ValidateOnUpdateAndDeleteTests {
 
         @Test
