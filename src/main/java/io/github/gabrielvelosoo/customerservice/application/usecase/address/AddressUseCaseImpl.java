@@ -37,8 +37,6 @@ public class AddressUseCaseImpl implements AddressUseCase {
         Customer customer = authService.getLoggedCustomer();
         logger.debug("Setting logged customer '{}' to created address", customer.getId());
         address.setCustomer(customer);
-        logger.debug("Validating new address data");
-        addressValidator.validateOnCreate(address);
         Address savedAddress = addressService.save(address);
         logger.info("Address persisted successfully with id '{}'", savedAddress.getId());
         return addressMapper.toDTO(savedAddress);

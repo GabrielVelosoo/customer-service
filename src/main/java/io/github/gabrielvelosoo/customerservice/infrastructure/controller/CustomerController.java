@@ -8,10 +8,12 @@ import io.github.gabrielvelosoo.customerservice.application.validator.group.Vali
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ErrorResponse;
 import io.github.gabrielvelosoo.customerservice.infrastructure.exception.model.ValidationErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -41,28 +43,47 @@ public class CustomerController implements GenericController {
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
-                    description = "Customer created successfully. Returns the created customer data and a Location header pointing to the new resource.",
-                    content = @Content(schema = @Schema(implementation = CustomerResponseDTO.class))
+                    description = "Customer created successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CustomerResponseDTO.class)
+                    ),
+                    headers = @Header(
+                            name = "Location",
+                            description = "URI of the newly created address resource"
+                    )
             ),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Conflict — the e-mail or CPF provided is already registered with another account.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Conflict — the e-mail or CPF provided is already registered with another account",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "422",
-                    description = "Unprocessable Entity — validation failed for one or more fields in the request body.",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+                    description = "Unprocessable Entity — validation failed for one or more fields in the request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ValidationErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error — an unexpected error occurred while interacting with Keycloak, such as during user creation, role assignment, or token validation. Contact the development team if the problem persists.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Internal Server Error — an unexpected error occurred while communicating with Keycloak (e.g., creating, updating, or deleting a user, assigning roles, or validating tokens). Contact the development team if the issue persists.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             )
     })
     public ResponseEntity<CustomerResponseDTO> create(@RequestBody @Validated(ValidationOrder.class) CustomerRequestDTO customerRequestDTO) {
@@ -77,38 +98,57 @@ public class CustomerController implements GenericController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Operation(
             summary = "Edit a customer",
-            description = "Edit a customer. Publishes an event to edit the corresponding user in the authentication service. Returns the edited customer data."
+            description = "Edit a customer. Requires role USER or ADMIN. Publishes an event to edit the corresponding user in the authentication service. Returns the updated customer data.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Customer updated successfully. Returns the updated customer data.",
-                    content = @Content(schema = @Schema(implementation = CustomerResponseDTO.class))
+                    description = "Customer edited successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CustomerResponseDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "Unauthorized — invalid or expired access token.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Unauthorized — invalid or expired access token",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Not Found — no customer exists with the provided ID.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Not Found — no customer exists with the provided ID",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "422",
-                    description = "Unprocessable Entity — validation failed for one or more fields in the request body.",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+                    description = "Unprocessable Entity — validation failed for one or more fields in the request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ValidationErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error — an unexpected error occurred while interacting with Keycloak, such as during user creation, role assignment, or token validation. Contact the development team if the problem persists.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Internal Server Error — an unexpected error occurred while communicating with Keycloak (e.g., creating, updating, or deleting a user, assigning roles, or validating tokens). Contact the development team if the issue persists.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             )
     })
     public ResponseEntity<CustomerResponseDTO> edit(@PathVariable(name = "id") Long customerId,
@@ -124,32 +164,45 @@ public class CustomerController implements GenericController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Operation(
             summary = "Delete a customer",
-            description = "Delete a customer. Publishes an event to delete the corresponding user in the authentication service."
+            description = "Delete a customer. Requires role USER or ADMIN. Publishes an event to delete the corresponding user in the authentication service.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "204",
-                    description = "Customer deleted successfully. No content is returned in the response body."
+                    description = "Customer deleted successfully. No content is returned in the response body"
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "Unauthorized — invalid or expired access token.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Unauthorized — invalid or expired access token",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Not Found — no customer exists with the provided ID.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Not Found — no customer exists with the provided ID",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error — an unexpected error occurred while interacting with Keycloak, such as during user creation, role assignment, or token validation. Contact the development team if the problem persists.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Internal Server Error — an unexpected error occurred while communicating with Keycloak (e.g., creating, updating, or deleting a user, assigning roles, or validating tokens). Contact the development team if the issue persists.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
             )
     })
     public ResponseEntity<Void> delete(@PathVariable(name = "id") Long customerId) {
