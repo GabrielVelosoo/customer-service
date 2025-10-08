@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -69,5 +71,16 @@ public class KeycloakResourceServerConfig {
                 "/swagger-ui.html",
                 "/swagger-ui/**"
         );
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        String issuerDocker = "http://keycloak:8080/realms/ecommerce";
+        String issuerLocal = "http://localhost:8080/realms/ecommerce";
+        try {
+            return NimbusJwtDecoder.withJwkSetUri(issuerDocker + "/protocol/openid-connect/certs").build();
+        } catch (Exception e) {
+            return NimbusJwtDecoder.withJwkSetUri(issuerLocal + "/protocol/openid-connect/certs").build();
+        }
     }
 }

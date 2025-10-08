@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/${DATASOURCE_DB}
+    url: jdbc:postgresql://postgres:5432/${DATASOURCE_DB}
     username: ${DATASOURCE_USER}
     password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -23,19 +23,16 @@ spring:
             scope: openid
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/ecommerce
+            issuer-uri: http://keycloak:8080/realms/ecommerce
             user-name-attribute: preferred_username
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/ecommerce
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: ecommerce
     password: ecommerce
 
 keycloak:
-  auth-server-url: http://localhost:8080
+  auth-server-url: http://keycloak:8080
   realm: ecommerce
   client-id: customer-service
   client-secret: ${CLIENT_SECRET}
