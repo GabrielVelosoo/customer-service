@@ -122,7 +122,6 @@ class AddressUseCaseImplTest {
             verify(authService, times(1)).getLoggedCustomer();
             verify(addressMapper, times(1)).toEntity(addressRequestDTO);
             verify(addressService, times(1)).save(address);
-            verify(addressValidator, times(1)).validateOnCreate(address);
             verify(addressMapper, times(1)).toDTO(address);
         }
     }

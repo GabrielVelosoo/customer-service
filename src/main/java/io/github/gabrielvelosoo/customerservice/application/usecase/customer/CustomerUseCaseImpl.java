@@ -9,6 +9,7 @@ import io.github.gabrielvelosoo.customerservice.application.dto.event.CustomerUp
 import io.github.gabrielvelosoo.customerservice.application.mapper.CustomerMapper;
 import io.github.gabrielvelosoo.customerservice.application.validator.custom.CustomerValidator;
 import io.github.gabrielvelosoo.customerservice.domain.entity.Customer;
+import io.github.gabrielvelosoo.customerservice.domain.service.auth.AuthService;
 import io.github.gabrielvelosoo.customerservice.domain.service.customer.CustomerService;
 import io.github.gabrielvelosoo.customerservice.infrastructure.messaging.producer.CustomerProducer;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
     private static final Logger logger = LogManager.getLogger(CustomerUseCaseImpl.class);
 
     private final CustomerService customerService;
+    private final AuthService authService;
     private final CustomerMapper customerMapper;
     private final CustomerValidator customerValidator;
     private final CustomerProducer customerProducer;
@@ -75,16 +77,26 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
 
     @Override
     @Transactional
+    public void deleteLoggedCustomer() {
+        performCustomerDeletion(authService.getLoggedCustomer());
+    }
+
+    @Override
+    @Transactional
     public void delete(Long customerId) {
-        logger.debug("Deleting customer id: '{}'", customerId);
-        logger.debug("Searching for customer to delete with id: '{}'", customerId);
         Customer customer = customerService.findById(customerId);
+        performCustomerDeletion(customer);
+    }
+
+    private void performCustomerDeletion(Customer customer) {
+        Long customerId = customer.getId();
+        logger.debug("Deleting customer id: '{}'", customerId);
         customerService.delete(customer);
         logger.info("Customer id '{}' deleted successfully", customerId);
         logger.debug("Publishing 'CustomerDeletedEvent' for customer with id: '{}'", customerId);
         customerProducer.publishCustomerDeleted(
                 new CustomerDeletedEvent(
-                        customer.getId()
+                        customerId
                 )
         );
     }

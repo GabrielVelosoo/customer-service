@@ -160,11 +160,11 @@ public class CustomerController implements GenericController {
         return ResponseEntity.ok(customerResponseDTO);
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Operation(
-            summary = "Delete a customer",
-            description = "Delete a customer. Requires role USER or ADMIN. Publishes an event to delete the corresponding user in the authentication service.",
+            summary = "Delete logged customer",
+            description = "Delete logged customer. Requires role USER or ADMIN. Publishes an event to delete the corresponding user in the authentication service.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
@@ -175,6 +175,58 @@ public class CustomerController implements GenericController {
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized — invalid or expired access token",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — an unexpected error occurred while communicating with Keycloak (e.g., creating, updating, or deleting a user, assigning roles, or validating tokens). Contact the development team if the issue persists.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error — unexpected error occurred while processing the request. Contact the development team if it persists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            )
+    })
+    public ResponseEntity<Void> deleteLoggedCustomer() {
+        logger.info("Received request to delete logged customer");
+        customerUseCase.deleteLoggedCustomer();
+        logger.info("Customer deleted successfully");
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Delete a customer",
+            description = "Delete a customer. Requires role ADMIN. Publishes an event to delete the corresponding user in the authentication service.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Customer deleted successfully. No content is returned in the response body"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized — invalid or expired access token",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden — the authenticated user does not have permission to access this resource (role not allowed)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class)
